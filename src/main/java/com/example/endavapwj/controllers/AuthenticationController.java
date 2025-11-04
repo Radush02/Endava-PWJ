@@ -6,10 +6,7 @@ import com.example.endavapwj.service.AuthenticationService.AuthenticationService
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.async.DeferredResult;
 
 import java.util.Map;
@@ -29,4 +26,10 @@ public class AuthenticationController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PostMapping("/validate")
+    public ResponseEntity<Map<String,String>> validate(@RequestParam String emailHashKey) throws ExecutionException, InterruptedException {
+        Map<String,String> response;
+        response = authenticationService.validateEmail(emailHashKey).get();
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

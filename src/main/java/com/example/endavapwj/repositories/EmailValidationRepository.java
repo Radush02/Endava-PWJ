@@ -1,8 +1,9 @@
-package com.example.endavapwj.controllers;
+package com.example.endavapwj.repositories;
 
 import com.example.endavapwj.collection.EmailValidation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface EmailValidationRepository extends JpaRepository<EmailValidation, String> {
-    EmailValidation deleteEmailValidationByEmail(String email);
+    EmailValidation deleteEmailValidationByEmailHash(String emailHashKey);
+    Boolean  existsByEmailHash(String emailHashKey);
 }
