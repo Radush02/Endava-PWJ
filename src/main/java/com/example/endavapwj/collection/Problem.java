@@ -3,8 +3,15 @@ package com.example.endavapwj.collection;
 import com.example.endavapwj.enums.Difficulty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 @Entity
+@Table(name="problem")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Problem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
