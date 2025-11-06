@@ -3,6 +3,7 @@ package com.example.endavapwj.controllers;
 
 import com.example.endavapwj.DTOs.RegisterDTO;
 import com.example.endavapwj.service.AuthenticationService.AuthenticationService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,16 +21,12 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String,String>> register(@RequestBody RegisterDTO registerDTO) throws ExecutionException, InterruptedException {
-        Map<String,String> response;
-        response = authenticationService.registerUser(registerDTO).get();
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public CompletableFuture<ResponseEntity<Map<String,String>>> register(@Valid @RequestBody RegisterDTO registerDTO){
+        return authenticationService.registerUser(registerDTO).thenApply(body->ResponseEntity.status(HttpStatus.CREATED).body(body));
     }
 
     @PostMapping("/validate")
-    public ResponseEntity<Map<String,String>> validate(@RequestParam String emailHashKey) throws ExecutionException, InterruptedException {
-        Map<String,String> response;
-        response = authenticationService.validateEmail(emailHashKey).get();
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public CompletableFuture<ResponseEntity<Map<String,String>>> validate(@RequestParam String emailHashKey){
+        return authenticationService.validateEmail(emailHashKey).thenApply(body->ResponseEntity.status(HttpStatus.CREATED).body(body));
     }
 }

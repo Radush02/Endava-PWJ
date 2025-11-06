@@ -1,11 +1,11 @@
 package com.example.endavapwj.collection;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+
+import java.util.Date;
 
 @Entity
 @Table(name = "emailValidation")
@@ -14,7 +14,14 @@ import lombok.Setter;
 public class EmailValidation {
 
     @Id
-    private String email;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false, name = "user_id")
+    private User user;
     @Column(nullable=false)
-    private String emailHash;
+    private String validationHash;
+    @Column(nullable = false)
+    @CreatedDate
+    private Date createdAt;
 }

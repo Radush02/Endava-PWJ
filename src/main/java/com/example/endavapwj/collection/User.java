@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -47,6 +48,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column
+    private Date emailVerifiedAt;
 
     @OneToMany(mappedBy = "admin",cascade = CascadeType.ALL)
     private Set<Problem> problems;
