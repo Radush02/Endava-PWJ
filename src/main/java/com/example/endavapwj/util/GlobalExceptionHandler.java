@@ -1,5 +1,6 @@
 package com.example.endavapwj.util;
 
+import com.example.endavapwj.exceptions.AccountLockedException;
 import com.example.endavapwj.exceptions.AlreadyExistsException;
 import com.example.endavapwj.exceptions.InvalidFieldException;
 import jakarta.validation.ConstraintViolationException;
@@ -59,5 +60,13 @@ public class GlobalExceptionHandler {
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("error", ex.getMessage());
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(AccountLockedException.class)
+    public ResponseEntity<Map<String, Object>> handleAccountLockedException(AccountLockedException ex) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", HttpStatus.BAD_REQUEST.value());
+        body.put("error", ex.getMessage());
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }
 }

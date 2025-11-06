@@ -4,11 +4,14 @@ import com.example.endavapwj.DTOs.LoginDTO;
 import com.example.endavapwj.DTOs.RegisterDTO;
 import com.example.endavapwj.collection.EmailValidation;
 import com.example.endavapwj.collection.User;
+import com.example.endavapwj.exceptions.AccountLockedException;
 import com.example.endavapwj.exceptions.AlreadyExistsException;
 import com.example.endavapwj.exceptions.InvalidFieldException;
 import com.example.endavapwj.repositories.EmailValidationRepository;
 import com.example.endavapwj.enums.Role;
 import com.example.endavapwj.repositories.UserRepository;
+import com.example.endavapwj.util.JwtUtil;
+import com.example.endavapwj.util.LoginThrottle;
 import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -23,13 +26,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final EmailValidationRepository emailValidation;
-
+    private final JwtUtil jwtUtil;
+    private final LoginThrottle loginThrottle;
     public AuthenticationServiceImpl(UserRepository userRepository,
                                      EmailValidationRepository emailValidation,
-                                     BCryptPasswordEncoder passwordEncoder) {
+                                     BCryptPasswordEncoder passwordEncoder,JwtUtil jwtUtil, LoginThrottle loginThrottle) {
         this.userRepository = userRepository;
         this.emailValidation = emailValidation;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
+        this.loginThrottle = loginThrottle;
     }
 
     @Override
@@ -48,6 +54,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         EmailValidation token = new EmailValidation();
         token.setUser(user);
         token.setValidationHash(RandomStringUtils.secure().nextAlphanumeric(24));
+        token.setCreatedAt(new Date());
         emailValidation.save(token);
 
         return CompletableFuture.completedFuture(
@@ -74,13 +81,30 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public CompletableFuture<Map<String,String>> login(LoginDTO loginDTO){
         User u = userRepository.findByUsernameIgnoreCase(loginDTO.getUsername());
-        if(u == null)
-            throw new InvalidFieldException("Invalid account details.");
-        if(!passwordEncoder.matches(loginDTO.getPassword(), u.getPassword())){
-            //implement account lock-out, todo
+        if (u == null) {
             throw new InvalidFieldException("Invalid account details.");
         }
-        return CompletableFuture.completedFuture(Map.of("message", "Login successful.","access","jwt","refresh","refresh"));
+
+        if (loginThrottle.isLocked(u.getId())) {
+            long seconds = loginThrottle.getLockRemainingSeconds(u.getId());
+            throw new AccountLockedException("Account locked. Try again in " + seconds + " seconds.");
+        }
+
+        if (!passwordEncoder.matches(loginDTO.getPassword(), u.getPassword())) {
+            long count = loginThrottle.registerFailure(u.getId());
+            throw new InvalidFieldException("Invalid account details.");
+        }
+
+        loginThrottle.reset(u.getId());
+
+        String accessToken = jwtUtil.generateToken(loginDTO.getUsername());
+        String refreshToken = jwtUtil.generateRefreshToken(loginDTO.getUsername());
+
+        return CompletableFuture.completedFuture(
+                Map.of("message", "Login successful.",
+                        "access", accessToken,
+                        "refresh", refreshToken)
+        );
     }
 
 }
