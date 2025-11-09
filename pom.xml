@@ -61,6 +61,7 @@
 			<version>0.12.5</version>
 		</dependency>
 
+
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-impl</artifactId>
@@ -137,6 +138,14 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-javadoc-plugin</artifactId>
+			<version>3.6.2</version>
+			<configuration>
+				<source>1.8</source>
+			</configuration>
 			</plugin>
 		</plugins>
 	</build>

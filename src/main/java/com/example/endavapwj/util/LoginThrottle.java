@@ -16,6 +16,14 @@ public class LoginThrottle {
     private final Duration lockDuration;
     private final int maxAttempts;
 
+    /**
+     * Constructs the login throttling manager.
+     *
+     * @param redis Redis template used to store failure counters and lock markers
+     * @param maxAttempts maximum failed attempts before the user is locked
+     * @param failureWindow time window in which failed attempts are counted
+     * @param lockDuration duration for which the account remains locked
+     */
     public LoginThrottle(
             RedisTemplate<String, String> redis,
             @Value("${security.login.max-attempts}") int maxAttempts,
@@ -35,19 +43,46 @@ public class LoginThrottle {
         return "login:fail:" + userId;
     }
 
+
+    /**
+     * Returns the remaining lock time in seconds for a locked user.
+     *
+     * @param userId the user whose lock expiration is queried
+     * @return remaining lock duration in seconds, or 0 if not locked
+     */
     public long getLockRemainingSeconds(long userId) {
         Long ttl = redis.getExpire(lockKey(userId), TimeUnit.SECONDS);
         return (ttl == null || ttl < 0) ? 0 : ttl;
     }
 
+    /**
+     * Checks if a user account is currently locked.
+     *
+     * @param userId the user to check
+     * @return true if the user is locked, false otherwise
+     */
     public boolean isLocked(long userId) {
         return Boolean.TRUE.equals(redis.hasKey(lockKey(userId)));
     }
 
+    /**
+     * Resets login failure count and lock state for the given user.
+     * Call this method after a successful login.
+     *
+     * @param userId the user for whom to clear throttling state
+     */
     public void reset(long userId) {
         redis.delete(Arrays.asList(lockKey(userId), failKey(userId)));
     }
 
+    /**
+     * Registers a failed login attempt for the given user.
+     * If the maximum number of failures is reached within the failure window,
+     * the account is locked for the configured lock duration.
+     *
+     * @param userId the user whose failure count is increased
+     * @return the current number of recorded failed attempts for this window
+     */
     public long registerFailure(long userId) {
         String fk = failKey(userId);
         if (isLocked(userId)) return maxAttempts;

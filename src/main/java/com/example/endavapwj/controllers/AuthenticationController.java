@@ -3,7 +3,7 @@ package com.example.endavapwj.controllers;
 
 import com.example.endavapwj.DTOs.LoginDTO;
 import com.example.endavapwj.DTOs.RegisterDTO;
-import com.example.endavapwj.service.AuthenticationService.AuthenticationService;
+import com.example.endavapwj.services.AuthenticationService.AuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;

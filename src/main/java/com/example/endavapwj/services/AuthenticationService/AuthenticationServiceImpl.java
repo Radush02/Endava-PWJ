@@ -1,4 +1,4 @@
-package com.example.endavapwj.service.AuthenticationService;
+package com.example.endavapwj.services.AuthenticationService;
 
 import com.example.endavapwj.DTOs.LoginDTO;
 import com.example.endavapwj.DTOs.RegisterDTO;
@@ -91,7 +91,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         if (!passwordEncoder.matches(loginDTO.getPassword(), u.getPassword())) {
-            long count = loginThrottle.registerFailure(u.getId());
+            loginThrottle.registerFailure(u.getId());
             throw new InvalidFieldException("Invalid account details.");
         }
 

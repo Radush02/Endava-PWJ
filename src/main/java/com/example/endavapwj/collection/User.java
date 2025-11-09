@@ -54,4 +54,6 @@ public class User {
     @OneToMany(mappedBy = "admin",cascade = CascadeType.ALL)
     private Set<Problem> problems;
 
+
+
 }
