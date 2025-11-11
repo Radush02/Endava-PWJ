@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
@@ -121,5 +122,14 @@ public class JwtUtil {
      */
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
+    }
+
+    /**
+     * Extracts the username from the JWT token.
+     *
+     * @return the username or null if the user isn't authenticated.
+     */
+    public String extractUsername() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 }
