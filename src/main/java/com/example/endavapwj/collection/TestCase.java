@@ -3,12 +3,12 @@ package com.example.endavapwj.collection;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import org.springframework.data.annotation.Id;
 
 @Entity
 @Table(name="testcase")
 public class TestCase {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
