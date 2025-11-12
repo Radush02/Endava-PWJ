@@ -2,9 +2,7 @@ package com.example.endavapwj.collection;
 
 import com.example.endavapwj.enums.Verdict;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -13,6 +11,8 @@ import java.time.Instant;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class Submission {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
