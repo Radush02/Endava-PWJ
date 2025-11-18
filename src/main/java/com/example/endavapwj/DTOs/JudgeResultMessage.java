@@ -7,10 +7,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class JudgeResultMessage {
-    String submissionId;
-    Verdict verdict;
-    Integer maxTimeMs;
-    Integer maxMemoryKb;
-    String compileError;
-    String runtimeError;
+  String submissionId;
+  Verdict verdict;
+  Integer maxTimeMs;
+  Integer maxMemoryKb;
+  String compileError;
+  String runtimeError;
 }

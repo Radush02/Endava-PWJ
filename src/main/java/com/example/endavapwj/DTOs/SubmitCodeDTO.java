@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class SubmitCodeDTO {
-    @NotNull
-    private Long problemId;
-    private String source;
+  @NotNull private Long problemId;
+  private String source;
 }

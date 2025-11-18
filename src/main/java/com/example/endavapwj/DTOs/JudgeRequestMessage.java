@@ -8,8 +8,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class JudgeRequestMessage {
-    private String submissionId;
-    private Long problemId;
-    private Integer memoryLimit;
-    private Integer timeLimit;
+  private String submissionId;
+  private Long problemId;
+  private Integer memoryLimit;
+  private Integer timeLimit;
 }
