@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class JudgeResultMessage {
+public class JudgeResultMessageDTO {
   String submissionId;
   Verdict verdict;
   Integer maxTimeMs;

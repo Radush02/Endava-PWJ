@@ -23,10 +23,7 @@ fi
 
 
 
-TIME_LIMIT_SEC=$((TIME_LIMIT_MS / 1000))
-if [ "$TIME_LIMIT_SEC" -le 0 ]; then
-  TIME_LIMIT_SEC=1
-fi
+TIME_LIMIT_SEC=$(echo "$TIME_LIMIT_MS" | awk '{print $1/1000}')
 
 ulimit -v "$MEMORY_LIMIT_KB"
 
@@ -46,5 +43,4 @@ elif [ $RUN_EXIT -ne 0 ]; then
   exit 0
 fi
 
-echo "OK"
 cat program_output.txt

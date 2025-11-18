@@ -7,4 +7,5 @@ import lombok.Setter;
 @Getter
 public class DockerTestRequestDTO {
   String source;
+  String input;
 }

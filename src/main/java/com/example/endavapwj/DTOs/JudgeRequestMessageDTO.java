@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class JudgeRequestMessage {
+public class JudgeRequestMessageDTO {
   private String submissionId;
   private Long problemId;
   private Integer memoryLimit;

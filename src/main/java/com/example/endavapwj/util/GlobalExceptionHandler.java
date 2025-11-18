@@ -3,6 +3,7 @@ package com.example.endavapwj.util;
 import com.example.endavapwj.exceptions.AccountLockedException;
 import com.example.endavapwj.exceptions.AlreadyExistsException;
 import com.example.endavapwj.exceptions.InvalidFieldException;
+import com.example.endavapwj.exceptions.NotPermittedException;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -70,6 +71,17 @@ public class GlobalExceptionHandler {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("timestamp", LocalDateTime.now());
     body.put("status", HttpStatus.BAD_REQUEST.value());
+    body.put("error", ex.getMessage());
+    return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
+  }
+
+  @ExceptionHandler(NotPermittedException.class)
+  public ResponseEntity<Map<String, Object>> handleNotPermittedException(
+          NotPermittedException ex
+  ){
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("timestamp", LocalDateTime.now());
+    body.put("status", HttpStatus.FORBIDDEN.value());
     body.put("error", ex.getMessage());
     return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
   }

@@ -2,9 +2,15 @@ package com.example.endavapwj.collection;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 @Entity
 @Table(name = "testcase")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class TestCase {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

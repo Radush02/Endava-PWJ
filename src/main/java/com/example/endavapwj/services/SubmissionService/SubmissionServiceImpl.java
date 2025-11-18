@@ -1,6 +1,6 @@
 package com.example.endavapwj.services.SubmissionService;
 
-import com.example.endavapwj.DTOs.JudgeRequestMessage;
+import com.example.endavapwj.DTOs.JudgeRequestMessageDTO;
 import com.example.endavapwj.DTOs.SubmitCodeDTO;
 import com.example.endavapwj.collection.Problem;
 import com.example.endavapwj.collection.Submission;
@@ -64,8 +64,8 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     submissionRepository.save(s);
 
-    JudgeRequestMessage judgeRequestMessage =
-        JudgeRequestMessage.builder()
+    JudgeRequestMessageDTO judgeRequestMessage =
+        JudgeRequestMessageDTO.builder()
             .submissionId(s.getId())
             .problemId(problem.getId())
             .memoryLimit(problem.getMemoryLimit())

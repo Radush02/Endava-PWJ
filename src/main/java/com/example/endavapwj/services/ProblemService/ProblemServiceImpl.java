@@ -11,9 +11,12 @@ import com.example.endavapwj.repositories.ProblemRepository;
 import com.example.endavapwj.repositories.UserRepository;
 import com.example.endavapwj.util.JwtUtil;
 import jakarta.transaction.Transactional;
+import org.springframework.stereotype.Service;
+
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+@Service
 public class ProblemServiceImpl implements ProblemService {
 
   private final UserRepository userRepository;
@@ -98,6 +101,7 @@ public class ProblemServiceImpl implements ProblemService {
             .findByTitle(title)
             .orElseThrow(() -> new NotFoundException("Problem not found"));
     problemRepository.delete(problem);
+
     return CompletableFuture.completedFuture(Map.of("message", "Problem deleted successfully"));
   }
 }

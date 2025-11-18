@@ -45,10 +45,11 @@ public class SubmissionController {
     Path inputFile = workDir.resolve("input.txt");
 
     Files.writeString(sourceFile, dockerTestRequestDTO.getSource(), StandardCharsets.UTF_8);
-    Files.writeString(inputFile, "", StandardCharsets.UTF_8);
+    Files.writeString(inputFile, dockerTestRequestDTO.getInput(), StandardCharsets.UTF_8);
 
     String image = "cpp-runner";
     String workDirPath = workDir.toAbsolutePath().toString();
+
 
     ProcessBuilder pb =
         new ProcessBuilder(
