@@ -43,26 +43,11 @@ public class SubmissionServiceImpl implements SubmissionService {
   @Transactional
   @Override
   public CompletableFuture<Map<String, String>> createSubmission(SubmitCodeDTO submitCodeDTO) {
-    User user =
-        userRepository
-            .findByUsername(jwtUtil.extractUsername())
-            .orElseThrow(() -> new NotFoundException("User not found"));
-
-    Problem problem =
-        problemRepository
+    Problem problem = problemRepository
             .findById(submitCodeDTO.getProblemId())
             .orElseThrow(() -> new NotFoundException("Problem not found"));
 
-    Submission s =
-        Submission.builder()
-            .problem(problem)
-            .source(submitCodeDTO.getSource())
-            .author(user)
-            .verdict(Verdict.QUEUED)
-            .createdAt(Instant.now())
-            .build();
-
-    submissionRepository.save(s);
+    Submission s = saveSubmissionBeforeSignalling(submitCodeDTO,problem);
 
     JudgeRequestMessageDTO judgeRequestMessage =
         JudgeRequestMessageDTO.builder()
@@ -74,5 +59,22 @@ public class SubmissionServiceImpl implements SubmissionService {
 
     rabbitTemplate.convertAndSend(JudgeQueueConfig.QUEUE, judgeRequestMessage);
     return CompletableFuture.completedFuture(Map.of("message", "Submission pending."));
+  }
+
+  @Transactional
+  protected Submission saveSubmissionBeforeSignalling(SubmitCodeDTO submitCodeDTO,Problem problem) {
+    User user = userRepository
+            .findByUsername(jwtUtil.extractUsername())
+            .orElseThrow(() -> new NotFoundException("User not found"));
+
+    Submission s = Submission.builder()
+            .problem(problem)
+            .source(submitCodeDTO.getSource())
+            .author(user)
+            .verdict(Verdict.QUEUED)
+            .createdAt(Instant.now())
+            .build();
+
+    return submissionRepository.save(s);
   }
 }
