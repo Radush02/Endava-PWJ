@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 
 SOURCE_FILE="$1"
 INPUT_FILE="$2" 

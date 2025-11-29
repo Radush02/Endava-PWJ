@@ -12,7 +12,6 @@ import com.example.endavapwj.repositories.SubmissionRepository;
 import com.example.endavapwj.repositories.UserRepository;
 import com.example.endavapwj.util.JudgeQueueConfig;
 import com.example.endavapwj.util.JwtUtil;
-import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -40,14 +39,14 @@ public class SubmissionServiceImpl implements SubmissionService {
     this.rabbitTemplate = rabbitTemplate;
   }
 
-  @Transactional
   @Override
   public CompletableFuture<Map<String, String>> createSubmission(SubmitCodeDTO submitCodeDTO) {
-    Problem problem = problemRepository
+    Problem problem =
+        problemRepository
             .findById(submitCodeDTO.getProblemId())
             .orElseThrow(() -> new NotFoundException("Problem not found"));
 
-    Submission s = saveSubmissionBeforeSignalling(submitCodeDTO,problem);
+    Submission s = saveSubmissionBeforeSignalling(submitCodeDTO, problem);
 
     JudgeRequestMessageDTO judgeRequestMessage =
         JudgeRequestMessageDTO.builder()
@@ -61,13 +60,15 @@ public class SubmissionServiceImpl implements SubmissionService {
     return CompletableFuture.completedFuture(Map.of("message", "Submission pending."));
   }
 
-  @Transactional
-  protected Submission saveSubmissionBeforeSignalling(SubmitCodeDTO submitCodeDTO,Problem problem) {
-    User user = userRepository
+  protected Submission saveSubmissionBeforeSignalling(
+      SubmitCodeDTO submitCodeDTO, Problem problem) {
+    User user =
+        userRepository
             .findByUsername(jwtUtil.extractUsername())
             .orElseThrow(() -> new NotFoundException("User not found"));
 
-    Submission s = Submission.builder()
+    Submission s =
+        Submission.builder()
             .problem(problem)
             .source(submitCodeDTO.getSource())
             .author(user)

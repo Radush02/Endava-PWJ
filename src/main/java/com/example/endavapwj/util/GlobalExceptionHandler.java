@@ -76,9 +76,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(NotPermittedException.class)
-  public ResponseEntity<Map<String, Object>> handleNotPermittedException(
-          NotPermittedException ex
-  ){
+  public ResponseEntity<Map<String, Object>> handleNotPermittedException(NotPermittedException ex) {
     Map<String, Object> body = new LinkedHashMap<>();
     body.put("timestamp", LocalDateTime.now());
     body.put("status", HttpStatus.FORBIDDEN.value());

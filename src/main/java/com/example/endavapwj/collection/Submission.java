@@ -28,9 +28,8 @@ public class Submission {
   @Enumerated(EnumType.STRING)
   private Verdict verdict;
 
-  private Integer maxTimeMs;
-  private Integer maxMemoryKb;
-
+  private String output;
+  private String expectedOutput;
   private Instant createdAt;
   private Instant finishedAt;
 }

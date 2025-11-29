@@ -50,7 +50,6 @@ public class SubmissionController {
     String image = "cpp-runner";
     String workDirPath = workDir.toAbsolutePath().toString();
 
-
     ProcessBuilder pb =
         new ProcessBuilder(
             "docker",
