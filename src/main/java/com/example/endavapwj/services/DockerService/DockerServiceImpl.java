@@ -63,58 +63,121 @@ public class DockerServiceImpl implements DockerService {
 
     submission.setVerdict(Verdict.RUNNING);
     submissionRepository.save(submission);
+
+
+    HostConfig hostConfig =
+            HostConfig.newHostConfig()
+                    .withBinds(new Bind(path, new Volume("/work")))
+                    .withMemory((Integer.parseInt(memoryLimitKb) * 1024L))
+                    .withMemorySwap((Integer.parseInt(memoryLimitKb) * 1024L))
+                    .withCpuQuota(50000L)
+                    .withNetworkMode("none");
+
+    CreateContainerResponse compileContainer =
+            dockerClient
+                    .createContainerCmd(image)
+                    .withHostConfig(hostConfig)
+                    .withEntrypoint("/compile.sh")
+                    .withCmd(containerSource, memoryLimitKb)
+                    .exec();
+
+    String compileContainerId = compileContainer.getId();
+    ByteArrayOutputStream compileOutputStream = new ByteArrayOutputStream();
+
+    try (ResultCallback.Adapter<Frame> callback =
+                 dockerClient
+                         .attachContainerCmd(compileContainerId)
+                         .withStdOut(true)
+                         .withStdErr(true)
+                         .withFollowStream(true)
+                         .exec(new ResultCallback.Adapter<>() {
+                           @Override
+                           public void onNext(Frame frame) {
+                             try {
+                               compileOutputStream.write(frame.getPayload());
+                             } catch (IOException e) {
+                               e.printStackTrace();
+                             }
+                           }
+                         })) {
+
+      dockerClient.startContainerCmd(compileContainerId).exec();
+
+      int compileExitCode =
+              dockerClient
+                      .waitContainerCmd(compileContainerId)
+                      .exec(new WaitContainerResultCallback())
+                      .awaitStatusCode();
+
+      callback.awaitCompletion();
+
+      String compileOutput = compileOutputStream.toString(StandardCharsets.UTF_8);
+
+      if (compileExitCode != 0 || compileOutput.startsWith("COMPILE_ERROR")) {
+        submission.setVerdict(Verdict.CE);
+        submission.setFinishedAt(Instant.now());
+        submission.setOutput(compileOutput);
+        submissionRepository.save(submission);
+        return;
+      }
+    } finally {
+      try {
+        dockerClient.removeContainerCmd(compileContainerId).withForce(true).exec();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
     for (TestCase test : tests) {
       Files.writeString(inputFile, test.getInput(), StandardCharsets.UTF_8);
 
-      HostConfig hostConfig =
-          HostConfig.newHostConfig()
-              .withBinds(new Bind(path, new Volume("/work")))
-              .withMemory((Integer.parseInt(memoryLimitKb) * 1024L))
-              .withMemorySwap((Integer.parseInt(memoryLimitKb) * 1024L))
-              .withCpuQuota(50000L)
-              .withNetworkMode("none");
+      HostConfig runHostConfig =
+              HostConfig.newHostConfig()
+                      .withBinds(new Bind(path, new Volume("/work")))
+                      .withMemory((Integer.parseInt(memoryLimitKb) * 1024L))
+                      .withMemorySwap((Integer.parseInt(memoryLimitKb) * 1024L))
+                      .withCpuQuota(50000L)
+                      .withNetworkMode("none");
 
       CreateContainerResponse container =
-          dockerClient
-              .createContainerCmd(image)
-              .withHostConfig(hostConfig)
-              .withCmd(containerSource, containerInput, timeLimitMs, memoryLimitKb)
-              .exec();
+              dockerClient
+                      .createContainerCmd(image)
+                      .withHostConfig(runHostConfig)
+                      .withCmd(containerSource, containerInput, timeLimitMs, memoryLimitKb)
+                      .exec();
 
-      System.out.println("container created");
+
       String containerId = container.getId();
-
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      // https://stackoverflow.com/questions/70005729/accessing-the-output-of-a-command-running-in-a-docker-container
-      // de reverificat
+
       try (ResultCallback.Adapter<Frame> logCallback =
-          dockerClient
-              .attachContainerCmd(containerId)
-              .withStdOut(true)
-              .withStdErr(true)
-              .withFollowStream(true)
-              .exec(
-                  new ResultCallback.Adapter<>() {
-                    @Override
-                    public void onNext(Frame frame) {
-                      try {
-                        outputStream.write(frame.getPayload());
-                      } catch (IOException e) {
-                        e.printStackTrace();
-                      }
-                    }
-                  })) {
+                   dockerClient
+                           .attachContainerCmd(containerId)
+                           .withStdOut(true)
+                           .withStdErr(true)
+                           .withFollowStream(true)
+                           .exec(new ResultCallback.Adapter<>() {
+                             @Override
+                             public void onNext(Frame frame) {
+                               try {
+                                 outputStream.write(frame.getPayload());
+                               } catch (IOException e) {
+                                 e.printStackTrace();
+                               }
+                             }
+                           })) {
+
         dockerClient.startContainerCmd(containerId).exec();
 
         int exitCode =
-            dockerClient
-                .waitContainerCmd(containerId)
-                .exec(new WaitContainerResultCallback())
-                .awaitStatusCode();
+                dockerClient
+                        .waitContainerCmd(containerId)
+                        .exec(new WaitContainerResultCallback())
+                        .awaitStatusCode();
 
         logCallback.awaitCompletion();
 
         String output = outputStream.toString(StandardCharsets.UTF_8);
+        System.out.println("DEBUG "+submission.getLanguage()+" raw output: [" + output + "]");
         Verdict verdict = decideVerdict(exitCode, output, test.getOutput());
         if (verdict != Verdict.AC) {
           submission.setVerdict(verdict);
@@ -148,7 +211,7 @@ public class DockerServiceImpl implements DockerService {
     };
   }
 
-  private final Verdict decideVerdict(int containerExitCode, String output, String expectedOutput) {
+  private Verdict decideVerdict(int containerExitCode, String output, String expectedOutput) {
     String trimmed = output.trim();
 
     if (trimmed.startsWith("COMPILE_ERROR")) {
