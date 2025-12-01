@@ -1,5 +1,6 @@
 package com.example.endavapwj.collection;
 
+import com.example.endavapwj.enums.Language;
 import com.example.endavapwj.enums.Verdict;
 import jakarta.persistence.*;
 import java.time.Instant;
@@ -27,6 +28,9 @@ public class Submission {
 
   @Enumerated(EnumType.STRING)
   private Verdict verdict;
+
+  @Column(nullable = false)
+  private Language language;
 
   private String output;
   private String expectedOutput;

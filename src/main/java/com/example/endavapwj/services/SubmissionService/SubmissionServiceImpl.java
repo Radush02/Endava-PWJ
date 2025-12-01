@@ -74,6 +74,7 @@ public class SubmissionServiceImpl implements SubmissionService {
             .author(user)
             .verdict(Verdict.QUEUED)
             .createdAt(Instant.now())
+            .language(submitCodeDTO.getLanguage())
             .build();
 
     return submissionRepository.save(s);
