@@ -41,10 +41,12 @@ class AuthenticationServiceImplTest {
 
   @BeforeEach
   void setUp() {
-    validDto = new RegisterDTO();
-    validDto.setUsername("radush");
-    validDto.setPassword("Password1!");
-    validDto.setEmail("radush@radush.ro");
+    validDto =
+        RegisterDTO.builder()
+            .username("radush")
+            .password("Password1!")
+            .email("radush@radush.ro")
+            .build();
   }
 
   @Test

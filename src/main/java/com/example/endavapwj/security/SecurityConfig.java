@@ -39,10 +39,14 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.OPTIONS, "/**")
                     .permitAll()
                     .requestMatchers(
-                        "/api/v2/auth/login",
-                        "/api/v2/auth/register",
-                        "/api/v2/auth/logout",
-                        "/api/v2/auth/refresh")
+                        "/api/v2/auth/**",
+                        "/v2/api-docs",
+                        "/v3/api-docs/**",
+                        "/swagger-ui.html",
+                        "/swagger-ui/**",
+                        "/swagger-resources/**",
+                        "/webjars/**",
+                        "v2/**")
                     .permitAll()
                     .anyRequest()
                     .authenticated())
