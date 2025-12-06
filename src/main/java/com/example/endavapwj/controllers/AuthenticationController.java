@@ -1,6 +1,7 @@
 package com.example.endavapwj.controllers;
 
 import com.example.endavapwj.DTOs.LoginDTO;
+import com.example.endavapwj.DTOs.LoginResultDTO;
 import com.example.endavapwj.DTOs.RegisterDTO;
 import com.example.endavapwj.services.AuthenticationService.AuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -40,14 +41,14 @@ public class AuthenticationController {
   }
 
   @PostMapping("/login")
-  public CompletableFuture<ResponseEntity<Map<String, String>>> login(
+  public CompletableFuture<ResponseEntity<LoginResultDTO>> login(
       @Valid @RequestBody LoginDTO loginDTO, HttpServletResponse response) {
     return authenticationService
         .login(loginDTO)
         .thenApply(
             body -> {
-              String accessToken = body.get("access");
-              String refreshToken = body.get("refresh");
+              String accessToken = body.getAccessToken();
+              String refreshToken = body.getRefreshToken();
               ResponseCookie jwtCookie =
                   ResponseCookie.from("jwt", accessToken)
                       .httpOnly(true)
@@ -67,9 +68,7 @@ public class AuthenticationController {
 
               response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
               response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-              Map<String, String> resp = new HashMap<>();
-              resp.put("message", body.get("message"));
-              return ResponseEntity.status(HttpStatus.CREATED).body(resp);
+              return ResponseEntity.status(HttpStatus.CREATED).body(body);
             });
   }
 }

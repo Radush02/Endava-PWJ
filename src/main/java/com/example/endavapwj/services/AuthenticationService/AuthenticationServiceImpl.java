@@ -1,6 +1,7 @@
 package com.example.endavapwj.services.AuthenticationService;
 
 import com.example.endavapwj.DTOs.LoginDTO;
+import com.example.endavapwj.DTOs.LoginResultDTO;
 import com.example.endavapwj.DTOs.RegisterDTO;
 import com.example.endavapwj.collection.EmailValidation;
 import com.example.endavapwj.collection.User;
@@ -81,8 +82,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Transactional
   @Override
-  public CompletableFuture<Map<String, String>> login(LoginDTO loginDTO) {
-    User u = userRepository.findByUsernameIgnoreCase(loginDTO.getUsername());
+  public CompletableFuture<LoginResultDTO> login(LoginDTO loginDTO) {
+    User u = userRepository.findByUsernameIgnoreCase(loginDTO.getUsername()).orElseThrow(()->new InvalidFieldException("Invalid account details."));
     if (u == null) {
       throw new InvalidFieldException("Invalid account details.");
     }
@@ -98,11 +99,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     loginThrottle.reset(u.getId());
+    LoginResultDTO resultDTO = LoginResultDTO.builder()
+            .id(u.getId())
+            .username(u.getUsername())
+            .email(u.getEmail())
+            .role(u.getRole())
+            .fullName(u.getFullName())
+            .accessToken(jwtUtil.generateToken(loginDTO.getUsername()))
+            .refreshToken(jwtUtil.generateRefreshToken(loginDTO.getUsername()))
+            .build();
 
-    String accessToken = jwtUtil.generateToken(loginDTO.getUsername());
-    String refreshToken = jwtUtil.generateRefreshToken(loginDTO.getUsername());
 
-    return CompletableFuture.completedFuture(
-        Map.of("message", "Login successful.", "access", accessToken, "refresh", refreshToken));
+    return CompletableFuture.completedFuture(resultDTO);
   }
 }

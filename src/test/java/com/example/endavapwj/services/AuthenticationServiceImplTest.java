@@ -141,7 +141,7 @@ class AuthenticationServiceImplTest {
             .email("r@r.ro")
             .role(Role.User)
             .build();
-    when(userRepository.findByUsernameIgnoreCase("radush")).thenReturn(u);
+    when(userRepository.findByUsernameIgnoreCase("radush")).thenReturn(Optional.ofNullable(u));
     when(loginThrottle.isLocked(1L)).thenReturn(true);
     when(loginThrottle.getLockRemainingSeconds(1L)).thenReturn(42L);
 
@@ -163,7 +163,7 @@ class AuthenticationServiceImplTest {
             .email("r2@r.ro")
             .role(Role.User)
             .build();
-    when(userRepository.findByUsernameIgnoreCase("radush")).thenReturn(u);
+    when(userRepository.findByUsernameIgnoreCase("radush")).thenReturn(Optional.ofNullable(u));
     when(loginThrottle.isLocked(2L)).thenReturn(false);
     when(passwordEncoder.matches("BadPass!", "ENCODED")).thenReturn(false);
 
@@ -185,7 +185,7 @@ class AuthenticationServiceImplTest {
             .email("r3@r.ro")
             .role(Role.User)
             .build();
-    when(userRepository.findByUsernameIgnoreCase("radush")).thenReturn(u);
+    when(userRepository.findByUsernameIgnoreCase("radush")).thenReturn(Optional.ofNullable(u));
     when(loginThrottle.isLocked(3L)).thenReturn(false);
     when(passwordEncoder.matches("Password1!", "ENCODED")).thenReturn(true);
     when(jwtUtil.generateToken("radush")).thenReturn("ACCESS_TOKEN");

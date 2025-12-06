@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.example.endavapwj.DTOs.RegisterDTO;
+import com.example.endavapwj.exceptions.InvalidFieldException;
 import com.example.endavapwj.repositories.*;
 import com.example.endavapwj.services.AuthenticationService.AuthenticationService;
 import com.example.endavapwj.util.JwtUtil;
@@ -122,6 +123,8 @@ class AuthenticationControllerTest {
 
     String reqBody = objectMapper.writeValueAsString(validDto);
 
+
+
     mvc.perform(
             post("/api/v2/auth/register")
                 .contentType("application/json")
@@ -136,5 +139,112 @@ class AuthenticationControllerTest {
   }
 
   @Test
-  void whenConfirmEmail_thenSetEmailValidationDate() throws Exception {}
+  void whenConfirmEmail_thenReturnValidationMessage() throws Exception {
+
+    RegisterDTO validDto =
+            RegisterDTO.builder()
+                    .username("radush")
+                    .password("Password1!")
+                    .email("radush@radush.ro")
+                    .build();
+
+    String reqBody = objectMapper.writeValueAsString(validDto);
+    Map<String, String> serviceResponse =
+            Map.of(
+                    "message", "Register successful",
+                    "emailToken", "dummyToken");
+
+
+    Mockito.when(authenticationService.registerUser(Mockito.any(RegisterDTO.class)))
+            .thenReturn(CompletableFuture.completedFuture(serviceResponse));
+
+    Mockito.when(authenticationService.validateEmail("dummyToken"))
+            .thenReturn(CompletableFuture.completedFuture(Map.of("message", "Email validated successfully.")));
+
+    MvcResult mvcRegisterResult =
+            mvc.perform(
+                            post("/api/v2/auth/register")
+                                    .contentType("application/json")
+                                    .characterEncoding(StandardCharsets.UTF_8)
+                                    .content(reqBody))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+    mvc.perform(asyncDispatch(mvcRegisterResult))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.message").value("Register successful"))
+            .andReturn();
+
+
+    MvcResult mvcConfirmResult =
+            mvc.perform(
+                    post("/api/v2/auth/validate")
+                          .param("emailHashKey", "dummyToken")
+                          .contentType("application/json")
+                          .characterEncoding(StandardCharsets.UTF_8))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+    mvc.perform(
+                    asyncDispatch(mvcConfirmResult))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.message").value("Email validated successfully."));
+
+    Mockito.verify(authenticationService, Mockito.times(1))
+            .registerUser(Mockito.any(RegisterDTO.class));
+  }
+  @Test
+  void whenConfirmEmail_withWrongHashKey_thenReturnFailedMessage() throws Exception {
+    RegisterDTO validDto =
+            RegisterDTO.builder()
+                    .username("radush")
+                    .password("Password1!")
+                    .email("radush@radush.ro")
+                    .build();
+
+    String reqBody = objectMapper.writeValueAsString(validDto);
+    Map<String, String> serviceResponse =
+            Map.of(
+                    "message", "Register successful",
+                    "emailToken", "dummyToken");
+
+    Mockito.when(authenticationService.validateEmail("incorrectToken"))
+            .thenThrow(new InvalidFieldException("error: Invalid email validation token."));
+    Mockito.when(authenticationService.registerUser(Mockito.any(RegisterDTO.class)))
+            .thenReturn(CompletableFuture.completedFuture(serviceResponse));
+
+
+
+    MvcResult mvcRegisterResult =
+            mvc.perform(
+                            post("/api/v2/auth/register")
+                                    .contentType("application/json")
+                                    .characterEncoding(StandardCharsets.UTF_8)
+                                    .content(reqBody))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+    mvc.perform(asyncDispatch(mvcRegisterResult))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.message").value("Register successful"))
+            .andReturn();
+
+
+    mvc.perform(
+                            post("/api/v2/auth/validate")
+                                    .param("emailHashKey", "incorrectToken")
+                                    .contentType("application/json")
+                                    .characterEncoding(StandardCharsets.UTF_8))
+                    .andExpect(MockMvcResultMatchers.status().isBadRequest())
+                    .andExpect(jsonPath("$.error").value("error: Invalid email validation token."));
+
+
+    Mockito.verify(authenticationService, Mockito.times(1))
+            .registerUser(Mockito.any(RegisterDTO.class));
+  }
+
+  void whenLogin_withCorrectPassword_thenReturnToken() throws Exception{
+
+
+  }
 }

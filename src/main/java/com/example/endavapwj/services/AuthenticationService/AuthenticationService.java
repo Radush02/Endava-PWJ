@@ -1,6 +1,7 @@
 package com.example.endavapwj.services.AuthenticationService;
 
 import com.example.endavapwj.DTOs.LoginDTO;
+import com.example.endavapwj.DTOs.LoginResultDTO;
 import com.example.endavapwj.DTOs.RegisterDTO;
 import com.example.endavapwj.exceptions.AccountLockedException;
 import com.example.endavapwj.exceptions.AlreadyExistsException;
@@ -52,5 +53,5 @@ public interface AuthenticationService {
    *     attempts
    */
   @Transactional
-  CompletableFuture<Map<String, String>> login(LoginDTO loginDTO);
+  CompletableFuture<LoginResultDTO> login(LoginDTO loginDTO);
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v2/submissions")
+@RequestMapping("/api/v2/submission")
 public class SubmissionController {
   private final SubmissionService submissionService;
 
