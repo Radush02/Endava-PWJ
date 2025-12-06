@@ -84,9 +84,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Override
   public CompletableFuture<LoginResultDTO> login(LoginDTO loginDTO) {
     User u = userRepository.findByUsernameIgnoreCase(loginDTO.getUsername()).orElseThrow(()->new InvalidFieldException("Invalid account details."));
-    if (u == null) {
-      throw new InvalidFieldException("Invalid account details.");
-    }
 
     if (loginThrottle.isLocked(u.getId())) {
       long seconds = loginThrottle.getLockRemainingSeconds(u.getId());

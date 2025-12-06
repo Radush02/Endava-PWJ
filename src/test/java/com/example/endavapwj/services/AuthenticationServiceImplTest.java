@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 import com.example.endavapwj.DTOs.LoginDTO;
+import com.example.endavapwj.DTOs.LoginResultDTO;
 import com.example.endavapwj.DTOs.RegisterDTO;
 import com.example.endavapwj.collection.EmailValidation;
 import com.example.endavapwj.collection.User;
@@ -123,7 +124,7 @@ class AuthenticationServiceImplTest {
 
   @Test
   void login_whenUserDoesNotExist_throwsInvalidFieldException() {
-    when(userRepository.findByUsernameIgnoreCase("missing")).thenReturn(null);
+    when(userRepository.findByUsernameIgnoreCase("missing")).thenReturn(Optional.empty());
     LoginDTO dto = new LoginDTO("missing", "X");
     assertThrows(InvalidFieldException.class, () -> service.login(dto).join());
     verify(userRepository).findByUsernameIgnoreCase("missing");
@@ -192,11 +193,10 @@ class AuthenticationServiceImplTest {
     when(jwtUtil.generateRefreshToken("radush")).thenReturn("REFRESH_TOKEN");
 
     LoginDTO dto = new LoginDTO("radush", "Password1!");
-    Map<String, String> result = service.login(dto).join();
+    LoginResultDTO result = service.login(dto).join();
 
-    assertEquals("Login successful.", result.get("message"));
-    assertEquals("ACCESS_TOKEN", result.get("access"));
-    assertEquals("REFRESH_TOKEN", result.get("refresh"));
+    assertEquals("ACCESS_TOKEN", result.getAccessToken());
+    assertEquals("REFRESH_TOKEN", result.getRefreshToken());
 
     verify(loginThrottle).reset(3L);
     verify(loginThrottle, never()).registerFailure(anyLong());
