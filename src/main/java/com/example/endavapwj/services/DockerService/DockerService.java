@@ -1,6 +1,6 @@
 package com.example.endavapwj.services.DockerService;
 
-import com.example.endavapwj.DTOs.JudgeRequestMessageDTO;
+import com.example.endavapwj.DTOs.DockerDTO.JudgeRequestMessageDTO;
 import java.io.IOException;
 
 public interface DockerService {

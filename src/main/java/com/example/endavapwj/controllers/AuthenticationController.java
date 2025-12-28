@@ -1,12 +1,11 @@
 package com.example.endavapwj.controllers;
 
-import com.example.endavapwj.DTOs.LoginDTO;
-import com.example.endavapwj.DTOs.LoginResultDTO;
-import com.example.endavapwj.DTOs.RegisterDTO;
+import com.example.endavapwj.DTOs.AuthenticationDTO.LoginDTO;
+import com.example.endavapwj.DTOs.AuthenticationDTO.LoginResultDTO;
+import com.example.endavapwj.DTOs.AuthenticationDTO.RegisterDTO;
 import com.example.endavapwj.services.AuthenticationService.AuthenticationService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpHeaders;
@@ -71,4 +70,28 @@ public class AuthenticationController {
               return ResponseEntity.status(HttpStatus.CREATED).body(body);
             });
   }
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh", "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+
+        return ResponseEntity.ok(Map.of("response", "Logged out successfully"));
+    }
+
 }

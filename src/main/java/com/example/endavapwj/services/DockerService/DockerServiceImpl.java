@@ -1,7 +1,7 @@
 package com.example.endavapwj.services.DockerService;
 
-import com.example.endavapwj.DTOs.ContainerConfigDTO;
-import com.example.endavapwj.DTOs.JudgeRequestMessageDTO;
+import com.example.endavapwj.DTOs.DockerDTO.ContainerConfigDTO;
+import com.example.endavapwj.DTOs.DockerDTO.JudgeRequestMessageDTO;
 import com.example.endavapwj.collection.Problem;
 import com.example.endavapwj.collection.Submission;
 import com.example.endavapwj.collection.TestCase;

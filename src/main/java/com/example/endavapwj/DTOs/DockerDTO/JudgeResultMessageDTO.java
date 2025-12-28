@@ -1,4 +1,4 @@
-package com.example.endavapwj.DTOs;
+package com.example.endavapwj.DTOs.DockerDTO;
 
 import com.example.endavapwj.enums.Verdict;
 import lombok.Getter;

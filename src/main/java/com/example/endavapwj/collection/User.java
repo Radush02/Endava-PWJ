@@ -5,8 +5,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import java.util.Date;
 import java.util.Set;
-
-import jakarta.ws.rs.DefaultValue;
 import lombok.*;
 
 @Entity
@@ -52,8 +50,8 @@ public class User {
 
   @Column private Date emailVerifiedAt;
 
-  @Column
-  private String image = "https://radush.ro/static/default.jpg";
+  @Column private String image = "https://radush.ro/static/default.jpg";
+
   @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
   private Set<Problem> problems;
 }

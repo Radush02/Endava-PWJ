@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "problem")
 @Builder
@@ -46,4 +48,7 @@ public class Problem {
   @JoinColumn(name = "admin_id", nullable = false)
   @NotNull
   private User admin;
+
+  @OneToMany
+  private List<Comment> comments;
 }

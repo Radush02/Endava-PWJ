@@ -1,6 +1,6 @@
 package com.example.endavapwj.controllers;
 
-import com.example.endavapwj.DTOs.CreateProblemDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.EditProblemDTO;
 import com.example.endavapwj.services.ProblemService.ProblemService;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -23,7 +23,7 @@ public class ProblemController {
 
   @PostMapping("/create")
   public CompletableFuture<ResponseEntity<Map<String, String>>> create(
-      @RequestBody CreateProblemDTO createProblemDTO) {
+      @RequestBody EditProblemDTO.CreateProblemDTO createProblemDTO) {
     return problemService
         .create(createProblemDTO)
         .thenApply(body -> ResponseEntity.status(HttpStatus.CREATED).body(body));

@@ -1,4 +1,4 @@
-package com.example.endavapwj.DTOs;
+package com.example.endavapwj.DTOs.TestCaseDTO;
 
 import lombok.Getter;
 import lombok.Setter;

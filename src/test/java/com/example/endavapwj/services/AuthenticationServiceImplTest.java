@@ -3,9 +3,9 @@ package com.example.endavapwj.services;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.example.endavapwj.DTOs.LoginDTO;
-import com.example.endavapwj.DTOs.LoginResultDTO;
-import com.example.endavapwj.DTOs.RegisterDTO;
+import com.example.endavapwj.DTOs.AuthenticationDTO.LoginDTO;
+import com.example.endavapwj.DTOs.AuthenticationDTO.LoginResultDTO;
+import com.example.endavapwj.DTOs.AuthenticationDTO.RegisterDTO;
 import com.example.endavapwj.collection.EmailValidation;
 import com.example.endavapwj.collection.User;
 import com.example.endavapwj.enums.Role;

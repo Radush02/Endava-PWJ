@@ -1,7 +1,7 @@
 package com.example.endavapwj.listeners;
 
-import com.example.endavapwj.DTOs.JudgeRequestMessageDTO;
-import com.example.endavapwj.DTOs.JudgeResultMessageDTO;
+import com.example.endavapwj.DTOs.DockerDTO.JudgeRequestMessageDTO;
+import com.example.endavapwj.DTOs.DockerDTO.JudgeResultMessageDTO;
 import com.example.endavapwj.repositories.SubmissionRepository;
 import com.example.endavapwj.services.DockerService.DockerService;
 import com.example.endavapwj.util.JudgeQueueConfig;

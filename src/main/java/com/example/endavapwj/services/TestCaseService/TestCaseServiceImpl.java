@@ -1,6 +1,6 @@
 package com.example.endavapwj.services.TestCaseService;
 
-import com.example.endavapwj.DTOs.CreateTestCaseDTO;
+import com.example.endavapwj.DTOs.TestCaseDTO.CreateTestCaseDTO;
 import com.example.endavapwj.collection.Problem;
 import com.example.endavapwj.collection.TestCase;
 import com.example.endavapwj.collection.User;

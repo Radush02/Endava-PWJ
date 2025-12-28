@@ -1,6 +1,6 @@
 package com.example.endavapwj.services.TestCaseService;
 
-import com.example.endavapwj.DTOs.CreateTestCaseDTO;
+import com.example.endavapwj.DTOs.TestCaseDTO.CreateTestCaseDTO;
 import jakarta.transaction.Transactional;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

@@ -1,4 +1,4 @@
-package com.example.endavapwj.DTOs;
+package com.example.endavapwj.DTOs.AuthenticationDTO;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

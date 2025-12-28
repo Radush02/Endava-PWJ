@@ -1,0 +1,100 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: endava-mysql
+    environment:
+      MYSQL_DATABASE: ${ENDAVA_DB}
+      # MYSQL_USER: ${ENDAVA_USER}
+      MYSQL_ROOT_PASSWORD: ${ROOT_PASS}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7.4-alpine
+    container_name: endava-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: endava-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  judge-c:
+    build:
+      context: ./src/main/resources/judge-image
+      dockerfile: Dockerfile
+    container_name: endava-judge-c
+    restart: unless-stopped
+  judge-py:
+    build:
+      context: ./src/main/resources/judge-image-py
+      dockerfile: Dockerfile
+    container_name: endava-judge-py
+    restart: unless-stopped
+
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: endava-app
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      judge-c:
+        condition: service_started
+      judge-py:
+        condition: service_started
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_APPLICATION_NAME: Endava-PWJ
+      SPRING_DATASOURCE_URL: ${ENDAVA_URL}
+      SPRING_DATASOURCE_USERNAME: ${ENDAVA_USER}
+      SPRING_DATASOURCE_PASSWORD: ${ENDAVA_PASS}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+      SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: "5672"
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      SPRINGDOC_API_DOCS_PATH: /v2/api-docs
+      JUDGE_C_HOST: judge-c
+      JUDGE_PY_HOST: judge-py
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
+  rabbitmq_data:

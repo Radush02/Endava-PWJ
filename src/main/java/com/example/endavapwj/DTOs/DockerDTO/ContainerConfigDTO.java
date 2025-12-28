@@ -1,4 +1,4 @@
-package com.example.endavapwj.DTOs;
+package com.example.endavapwj.DTOs.DockerDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

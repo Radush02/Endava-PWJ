@@ -1,8 +1,8 @@
 package com.example.endavapwj.services.AuthenticationService;
 
-import com.example.endavapwj.DTOs.LoginDTO;
-import com.example.endavapwj.DTOs.LoginResultDTO;
-import com.example.endavapwj.DTOs.RegisterDTO;
+import com.example.endavapwj.DTOs.AuthenticationDTO.LoginDTO;
+import com.example.endavapwj.DTOs.AuthenticationDTO.LoginResultDTO;
+import com.example.endavapwj.DTOs.AuthenticationDTO.RegisterDTO;
 import com.example.endavapwj.collection.EmailValidation;
 import com.example.endavapwj.collection.User;
 import com.example.endavapwj.enums.Role;
@@ -83,7 +83,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
   @Transactional
   @Override
   public CompletableFuture<LoginResultDTO> login(LoginDTO loginDTO) {
-    User u = userRepository.findByUsernameIgnoreCase(loginDTO.getUsername()).orElseThrow(()->new InvalidFieldException("Invalid account details."));
+    User u =
+        userRepository
+            .findByUsernameIgnoreCase(loginDTO.getUsername())
+            .orElseThrow(() -> new InvalidFieldException("Invalid account details."));
 
     if (loginThrottle.isLocked(u.getId())) {
       long seconds = loginThrottle.getLockRemainingSeconds(u.getId());
@@ -96,7 +99,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     loginThrottle.reset(u.getId());
-    LoginResultDTO resultDTO = LoginResultDTO.builder()
+    LoginResultDTO resultDTO =
+        LoginResultDTO.builder()
             .id(u.getId())
             .username(u.getUsername())
             .email(u.getEmail())
@@ -105,7 +109,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             .accessToken(jwtUtil.generateToken(loginDTO.getUsername()))
             .refreshToken(jwtUtil.generateRefreshToken(loginDTO.getUsername()))
             .build();
-
 
     return CompletableFuture.completedFuture(resultDTO);
   }

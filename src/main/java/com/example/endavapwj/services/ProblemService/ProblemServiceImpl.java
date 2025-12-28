@@ -1,7 +1,6 @@
 package com.example.endavapwj.services.ProblemService;
 
-import com.example.endavapwj.DTOs.CreateProblemDTO;
-import com.example.endavapwj.DTOs.EditProblemDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.EditProblemDTO;
 import com.example.endavapwj.collection.Problem;
 import com.example.endavapwj.collection.User;
 import com.example.endavapwj.enums.Role;
@@ -31,7 +30,8 @@ public class ProblemServiceImpl implements ProblemService {
 
   @Override
   @Transactional
-  public CompletableFuture<Map<String, String>> create(CreateProblemDTO createProblemDTO) {
+  public CompletableFuture<Map<String, String>> create(
+      EditProblemDTO.CreateProblemDTO createProblemDTO) {
     User u =
         this.userRepository
             .findByUsername(jwtUtil.extractUsername())

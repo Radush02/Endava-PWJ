@@ -1,6 +1,6 @@
 package com.example.endavapwj.controllers;
 
-import com.example.endavapwj.DTOs.CreateTestCaseDTO;
+import com.example.endavapwj.DTOs.TestCaseDTO.CreateTestCaseDTO;
 import com.example.endavapwj.services.TestCaseService.TestCaseService;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
