@@ -70,28 +70,30 @@ public class AuthenticationController {
               return ResponseEntity.status(HttpStatus.CREATED).body(body);
             });
   }
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
-        ResponseCookie jwtCookie = ResponseCookie.from("jwt", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("None")
-                .build();
 
-        ResponseCookie refreshCookie = ResponseCookie.from("refresh", "")
-                .httpOnly(true)
-                .secure(true)
-                .path("/")
-                .maxAge(0)
-                .sameSite("None")
-                .build();
+  @PostMapping("/logout")
+  public ResponseEntity<?> logout(HttpServletResponse response) {
+    ResponseCookie jwtCookie =
+        ResponseCookie.from("jwt", "")
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .maxAge(0)
+            .sameSite("None")
+            .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
+    ResponseCookie refreshCookie =
+        ResponseCookie.from("refresh", "")
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .maxAge(0)
+            .sameSite("None")
+            .build();
 
-        return ResponseEntity.ok(Map.of("response", "Logged out successfully"));
-    }
+    response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
+    response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
+    return ResponseEntity.ok(Map.of("response", "Logged out successfully"));
+  }
 }

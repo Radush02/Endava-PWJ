@@ -2,6 +2,8 @@ package com.example.endavapwj.services.SubmissionService;
 
 import com.example.endavapwj.DTOs.AuthenticationDTO.SubmitCodeDTO;
 import com.example.endavapwj.DTOs.DockerDTO.JudgeRequestMessageDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.ProblemDTO;
+import com.example.endavapwj.DTOs.SubmissionDTO.SubmissionDTO;
 import com.example.endavapwj.collection.Problem;
 import com.example.endavapwj.collection.Submission;
 import com.example.endavapwj.collection.User;
@@ -56,8 +58,39 @@ public class SubmissionServiceImpl implements SubmissionService {
             .timeLimit(problem.getTimeLimit())
             .build();
 
-    rabbitTemplate.convertAndSend(JudgeQueueConfig.QUEUE, judgeRequestMessage);
-    return CompletableFuture.completedFuture(Map.of("message", "Submission pending."));
+    rabbitTemplate.convertAndSend(
+        JudgeQueueConfig.EXCHANGE, JudgeQueueConfig.ROUTING_KEY, judgeRequestMessage);
+
+    return CompletableFuture.completedFuture(
+        Map.of("message", "Submission pending.", "submissionId", s.getId()));
+  }
+
+  @Override
+  public CompletableFuture<SubmissionDTO> getSubmission(String id) {
+    User user =
+        userRepository
+            .findByUsername(jwtUtil.extractUsername())
+            .orElseThrow(() -> new NotFoundException("User not found"));
+
+    Submission submission =
+        submissionRepository
+            .findById(id)
+            .orElseThrow(() -> new NotFoundException("Submission not found"));
+    SubmissionDTO s =
+        SubmissionDTO.builder()
+            .username(user.getUsername())
+            .submissionId(submission.getId())
+            .problem(
+                new ProblemDTO(
+                    submission.getProblem().getTitle(), submission.getProblem().getDifficulty()))
+            .verdict(submission.getVerdict())
+            .language(submission.getLanguage())
+            .output(submission.getOutput())
+            .expectedOutput(submission.getExpectedOutput())
+            .createdAt(submission.getCreatedAt())
+            .finishedAt(submission.getFinishedAt())
+            .build();
+    return CompletableFuture.completedFuture(s);
   }
 
   protected Submission saveSubmissionBeforeSignalling(

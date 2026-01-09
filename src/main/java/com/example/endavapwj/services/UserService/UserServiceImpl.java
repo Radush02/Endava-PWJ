@@ -1,11 +1,15 @@
 package com.example.endavapwj.services.UserService;
 
+import com.example.endavapwj.DTOs.UserDTO.OtherUserDTO;
 import com.example.endavapwj.DTOs.UserDTO.UpdateUserDTO;
 import com.example.endavapwj.DTOs.UserDTO.UserDTO;
 import com.example.endavapwj.collection.User;
+import com.example.endavapwj.enums.Role;
 import com.example.endavapwj.exceptions.InvalidFieldException;
+import com.example.endavapwj.exceptions.NotFoundException;
 import com.example.endavapwj.exceptions.NotPermittedException;
 import com.example.endavapwj.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -40,6 +44,25 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public CompletableFuture<OtherUserDTO> info(String otherUsername) {
+    String username = SecurityContextHolder.getContext().getAuthentication().getName();
+    if (username == null) {
+      throw new NotPermittedException("Not logged in");
+    }
+    User u =
+        userRepository
+            .findByUsernameIgnoreCase(otherUsername)
+            .orElseThrow(() -> new InvalidFieldException("User not found."));
+
+    return CompletableFuture.completedFuture(
+        OtherUserDTO.builder()
+            .role(u.getRole())
+            .image(u.getImage())
+            .username(u.getUsername())
+            .build());
+  }
+
+  @Override
   public CompletableFuture<Map<String, String>> update(UpdateUserDTO updateUserDTO) {
     String username = SecurityContextHolder.getContext().getAuthentication().getName();
     User u =
@@ -67,5 +90,15 @@ public class UserServiceImpl implements UserService {
     }
     userRepository.save(u);
     return CompletableFuture.completedFuture(Map.of("message", "Profile updated successfully"));
+  }
+
+  @Transactional
+  public void promoteToAdmin(String email) {
+    User u =
+        userRepository
+            .findByEmailIgnoreCase(email)
+            .orElseThrow(() -> new NotFoundException("Doesn't exist yet."));
+    u.setRole(Role.Admin);
+    userRepository.save(u);
   }
 }

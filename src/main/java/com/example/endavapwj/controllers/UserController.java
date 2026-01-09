@@ -1,5 +1,6 @@
 package com.example.endavapwj.controllers;
 
+import com.example.endavapwj.DTOs.UserDTO.OtherUserDTO;
 import com.example.endavapwj.DTOs.UserDTO.UpdateUserDTO;
 import com.example.endavapwj.DTOs.UserDTO.UserDTO;
 import com.example.endavapwj.services.UserService.UserService;
@@ -28,4 +29,12 @@ public class UserController {
         .update(updateUserDTO)
         .thenApply((body) -> ResponseEntity.status(HttpStatus.ACCEPTED).body(body));
   }
+
+  @GetMapping("/user/{username}")
+  public CompletableFuture<ResponseEntity<OtherUserDTO>> user(@PathVariable String username) {
+    return userService
+        .info(username)
+        .thenApply((body) -> ResponseEntity.status(HttpStatus.OK).body(body));
+  }
+
 }

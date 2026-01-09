@@ -5,9 +5,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import lombok.*;
-
 import java.util.List;
+import lombok.*;
 
 @Entity
 @Table(name = "problem")
@@ -49,6 +48,5 @@ public class Problem {
   @NotNull
   private User admin;
 
-  @OneToMany
-  private List<Comment> comments;
+  @OneToMany private List<Comment> comments;
 }

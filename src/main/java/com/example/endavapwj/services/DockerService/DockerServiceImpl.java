@@ -2,6 +2,8 @@ package com.example.endavapwj.services.DockerService;
 
 import com.example.endavapwj.DTOs.DockerDTO.ContainerConfigDTO;
 import com.example.endavapwj.DTOs.DockerDTO.JudgeRequestMessageDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.ProblemDTO;
+import com.example.endavapwj.DTOs.SubmissionDTO.SubmissionDTO;
 import com.example.endavapwj.collection.Problem;
 import com.example.endavapwj.collection.Submission;
 import com.example.endavapwj.collection.TestCase;
@@ -37,7 +39,7 @@ public class DockerServiceImpl implements DockerService {
   private final SubmissionRepository submissionRepository;
 
   @Override
-  public void executeSubmission(JudgeRequestMessageDTO msg)
+  public SubmissionDTO executeSubmission(JudgeRequestMessageDTO msg)
       throws IOException, InterruptedException {
 
     Submission submission =
@@ -118,7 +120,7 @@ public class DockerServiceImpl implements DockerService {
         submission.setFinishedAt(Instant.now());
         submission.setOutput(compileOutput);
         submissionRepository.save(submission);
-        return;
+        return returnSubmission(submission);
       }
     } finally {
       try {
@@ -177,7 +179,8 @@ public class DockerServiceImpl implements DockerService {
         logCallback.awaitCompletion();
 
         String output = outputStream.toString(StandardCharsets.UTF_8);
-        System.out.println("DEBUG " + submission.getLanguage() + " raw output: [" + output + "]");
+        // System.out.println("DEBUG " + submission.getLanguage() + " raw output: [" + output +
+        // "]");
         Verdict verdict = decideVerdict(exitCode, output, test.getOutput());
         if (verdict != Verdict.AC) {
           submission.setVerdict(verdict);
@@ -185,7 +188,7 @@ public class DockerServiceImpl implements DockerService {
           submission.setOutput(output);
           submission.setExpectedOutput(verdict == Verdict.WA ? test.getOutput() : "N/A");
           submissionRepository.save(submission);
-          return;
+          return returnSubmission(submission);
         }
       } finally {
         try {
@@ -198,6 +201,24 @@ public class DockerServiceImpl implements DockerService {
     submission.setVerdict(Verdict.AC);
     submission.setFinishedAt(Instant.now());
     submissionRepository.save(submission);
+    return returnSubmission(submission);
+  }
+
+  public SubmissionDTO returnSubmission(Submission submission) {
+
+    return SubmissionDTO.builder()
+        .submissionId(submission.getId())
+        .problem(
+            new ProblemDTO(
+                submission.getProblem().getTitle(), submission.getProblem().getDifficulty()))
+        .username(submission.getAuthor().getUsername())
+        .verdict(submission.getVerdict())
+        .createdAt(submission.getCreatedAt())
+        .language(submission.getLanguage())
+        .finishedAt(submission.getFinishedAt())
+        .output(submission.getOutput())
+        .expectedOutput(submission.getExpectedOutput())
+        .build();
   }
 
   private ContainerConfigDTO buildDockerRunConfig(Language language) {

@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ProblemRepository extends JpaRepository<Problem, Long> {
   Optional<Problem> findByTitle(String title);
+  Optional<Problem> findById(Long id);
 }

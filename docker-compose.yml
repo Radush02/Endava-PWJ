@@ -7,7 +7,7 @@ services:
       # MYSQL_USER: ${ENDAVA_USER}
       MYSQL_ROOT_PASSWORD: ${ROOT_PASS}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -44,18 +44,18 @@ services:
       timeout: 5s
       retries: 30
 
-  judge-c:
-    build:
-      context: ./src/main/resources/judge-image
-      dockerfile: Dockerfile
-    container_name: endava-judge-c
-    restart: unless-stopped
-  judge-py:
-    build:
-      context: ./src/main/resources/judge-image-py
-      dockerfile: Dockerfile
-    container_name: endava-judge-py
-    restart: unless-stopped
+#  judge-c:
+#    build:
+#      context: ./src/main/resources/judge-image
+#      dockerfile: Dockerfile
+#    container_name: endava-judge-c
+#    restart: unless-stopped
+#  judge-py:
+#    build:
+#      context: ./src/main/resources/judge-image-py
+#      dockerfile: Dockerfile
+#    container_name: endava-judge-py
+#    restart: unless-stopped
 
 
   app:
@@ -70,10 +70,10 @@ services:
         condition: service_healthy
       rabbitmq:
         condition: service_healthy
-      judge-c:
-        condition: service_started
-      judge-py:
-        condition: service_started
+#      judge-c:
+#        condition: service_started
+#      judge-py:
+#        condition: service_started
     ports:
       - "8080:8080"
     environment:
@@ -88,6 +88,7 @@ services:
       SPRING_DATA_REDIS_PORT: "6379"
       SPRING_RABBITMQ_HOST: rabbitmq
       SPRING_RABBITMQ_PORT: "5672"
+      SECURITY_ADMIN_EMAIL: ${SECURITY_ADMIN_EMAIL}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       SPRINGDOC_API_DOCS_PATH: /v2/api-docs
       JUDGE_C_HOST: judge-c

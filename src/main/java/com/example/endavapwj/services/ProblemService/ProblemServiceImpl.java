@@ -1,6 +1,8 @@
 package com.example.endavapwj.services.ProblemService;
 
+import com.example.endavapwj.DTOs.CommentDTO.CommentDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.EditProblemDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.FullProblemDTO;
 import com.example.endavapwj.collection.Problem;
 import com.example.endavapwj.collection.User;
 import com.example.endavapwj.enums.Role;
@@ -10,8 +12,11 @@ import com.example.endavapwj.repositories.ProblemRepository;
 import com.example.endavapwj.repositories.UserRepository;
 import com.example.endavapwj.util.JwtUtil;
 import jakarta.transaction.Transactional;
+
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
 import org.springframework.stereotype.Service;
 
 @Service
@@ -102,5 +107,28 @@ public class ProblemServiceImpl implements ProblemService {
     problemRepository.delete(problem);
 
     return CompletableFuture.completedFuture(Map.of("message", "Problem deleted successfully"));
+  }
+
+  @Override
+  public CompletableFuture<FullProblemDTO> getById(Long id) {
+    Problem p =
+            this.problemRepository.findById(id).orElseThrow(() -> new NotFoundException("Problem not found"));
+
+    FullProblemDTO fp = FullProblemDTO.builder()
+            .id(p.getId())
+            .title(p.getTitle())
+            .description(p.getDescription())
+            .difficulty(p.getDifficulty())
+            .timeLimit(p.getTimeLimit())
+            .memoryLimit(p.getMemoryLimit())
+            .author(p.getAdmin().getUsername())
+            .build();
+
+    List<CommentDTO> comments = p.getComments().stream()
+            .map(comm -> new CommentDTO(comm.getUser().getUsername(), comm.getComment(), comm.countUpvotes(),comm.countDownvotes()))
+            .toList();
+    fp.setComments(comments);
+
+    return CompletableFuture.completedFuture(fp);
   }
 }
