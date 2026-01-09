@@ -4,7 +4,9 @@ import com.example.endavapwj.collection.EmailValidation;
 import com.example.endavapwj.collection.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface EmailValidationRepository extends JpaRepository<EmailValidation, String> {
   Optional<EmailValidation> findByValidationHash(String hash);
 

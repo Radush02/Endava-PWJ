@@ -43,6 +43,8 @@ class AuthenticationControllerTest {
   @MockitoBean private TestCaseRepository testCaseRepository;
   @MockitoBean private EmailValidationRepository emailValidationRepository;
   @MockitoBean private BCryptPasswordEncoder passwordEncoder;
+  @MockitoBean private CommentVoteRepository commentVoteRepository;
+  @MockitoBean private CommentRepository commentRepository;
   @MockitoBean private JwtUtil jwtUtil;
   @MockitoBean LoginThrottle loginThrottle;
 

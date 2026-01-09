@@ -48,6 +48,6 @@ public class Problem {
   @NotNull
   private User admin;
 
-  @OneToMany(mappedBy="problem",cascade = CascadeType.ALL)
+  @OneToMany(mappedBy="problem",cascade = CascadeType.ALL,orphanRemoval = true)
   private List<Comment> comments;
 }
