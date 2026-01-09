@@ -9,6 +9,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SECURITY_ADMIN_EMAIL: admin@example.com
     steps:
     - uses: actions/checkout@v4
     - name: Set up JDK 21

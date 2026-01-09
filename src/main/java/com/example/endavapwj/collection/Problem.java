@@ -48,5 +48,6 @@ public class Problem {
   @NotNull
   private User admin;
 
-  @OneToMany private List<Comment> comments;
+  @OneToMany(mappedBy="problem",cascade = CascadeType.ALL)
+  private List<Comment> comments;
 }

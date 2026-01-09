@@ -2,8 +2,7 @@ package com.example.endavapwj.collection;
 
 import com.example.endavapwj.enums.CommentVoteType;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(
@@ -11,6 +10,9 @@ import lombok.Setter;
     uniqueConstraints = {@UniqueConstraint(columnNames = {"user_id", "comment_id"})})
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentVote {
 
   @Id
@@ -28,4 +30,5 @@ public class CommentVote {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)
   private CommentVoteType type;
+
 }

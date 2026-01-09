@@ -124,6 +124,7 @@ public class ProblemServiceImpl implements ProblemService {
             .author(p.getAdmin().getUsername())
             .build();
 
+    System.out.println(p.getComments().size());
     List<CommentDTO> comments = p.getComments().stream()
             .map(comm -> new CommentDTO(comm.getUser().getUsername(), comm.getComment(), comm.countUpvotes(),comm.countDownvotes()))
             .toList();
