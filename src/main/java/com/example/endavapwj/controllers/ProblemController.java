@@ -2,9 +2,14 @@ package com.example.endavapwj.controllers;
 
 import com.example.endavapwj.DTOs.ProblemDTO.EditProblemDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.FullProblemDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.ProblemDTO;
 import com.example.endavapwj.services.ProblemService.ProblemService;
+
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,5 +37,11 @@ public class ProblemController {
 
     return problemService.getById(id)
             .thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
+  }
+
+  @GetMapping()
+  public CompletableFuture<ResponseEntity<List<FullProblemDTO>>> getAll(@RequestParam Integer page, @RequestParam Integer size) {
+    return problemService.getAllProblems(page,size)
+            .thenApply(body->ResponseEntity.status(HttpStatus.OK).body(body));
   }
 }

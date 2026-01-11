@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -23,10 +24,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
   @Autowired private UserDetailsService userDetailsService;
 
+  @Value("${security.cookie.secure}")
+  private boolean cookieSecure;
+
+
   private void clearJwtCookie(HttpServletResponse response) {
     Cookie cookie = new Cookie("jwt", null);
     cookie.setHttpOnly(true);
-    cookie.setSecure(true);
+    cookie.setSecure(cookieSecure);
     cookie.setPath("/");
     cookie.setMaxAge(0);
     response.addCookie(cookie);

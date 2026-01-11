@@ -54,4 +54,7 @@ public interface AuthenticationService {
    */
   @Transactional
   CompletableFuture<LoginResultDTO> login(LoginDTO loginDTO);
+
+
+  CompletableFuture<Map<String,String>> loggedIn();
 }

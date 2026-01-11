@@ -41,4 +41,6 @@ public class JudgeListener {
     rabbitTemplate.convertAndSend(
         JudgeQueueConfig.EXCHANGE, JudgeQueueConfig.RESULT_ROUTING_KEY, result);
   }
+
+
 }

@@ -28,27 +28,10 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @WebMvcTest(AuthenticationController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class AuthenticationControllerTest {
-
-  @Autowired private MockMvc mvc;
-
-  @Autowired private ObjectMapper objectMapper;
-
-  @MockitoBean(name = "entityManagerFactory")
-  private EntityManagerFactory entityManagerFactory;
-
-  @MockitoBean private UserRepository userRepository;
-  @MockitoBean private SubmissionRepository submissionRepository;
-  @MockitoBean private ProblemRepository problemRepository;
-  @MockitoBean private TestCaseRepository testCaseRepository;
-  @MockitoBean private EmailValidationRepository emailValidationRepository;
-  @MockitoBean private BCryptPasswordEncoder passwordEncoder;
-  @MockitoBean private CommentVoteRepository commentVoteRepository;
-  @MockitoBean private CommentRepository commentRepository;
-  @MockitoBean private JwtUtil jwtUtil;
-  @MockitoBean LoginThrottle loginThrottle;
+class AuthenticationControllerTest extends BaseControllerTest{
 
   @MockitoBean private AuthenticationService authenticationService;
+  @MockitoBean private UserRepository userRepository;
 
   @Test
   void whenRegisterWithCorrectInfo_thenCreateUser() throws Exception {
@@ -177,8 +160,7 @@ class AuthenticationControllerTest {
 
     MvcResult mvcConfirmResult =
         mvc.perform(
-                post("/api/v2/auth/validate")
-                    .param("emailHashKey", "dummyToken")
+                post("/api/v2/auth/validate/{emailHashKey}", "dummyToken")
                     .contentType("application/json")
                     .characterEncoding(StandardCharsets.UTF_8))
             .andExpect(request().asyncStarted())
@@ -227,8 +209,7 @@ class AuthenticationControllerTest {
         .andReturn();
 
     mvc.perform(
-            post("/api/v2/auth/validate")
-                .param("emailHashKey", "incorrectToken")
+            post("/api/v2/auth/validate/{emailHashKey}", "incorrectToken")
                 .contentType("application/json")
                 .characterEncoding(StandardCharsets.UTF_8))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())

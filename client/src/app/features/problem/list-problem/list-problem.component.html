@@ -1,0 +1,17 @@
+<table>
+    <thead>
+        <th>Problem ID</th>
+        <th>Title</th>
+        <th>Difficulty</th>
+        <th>Author</th>
+    </thead>
+    <tbody>
+        <tr *ngFor="let problem of problems" (click)="redirectToProblemDetail(problem.id)">
+            <td>{{ problem.id }}</td>
+            <td>{{ problem.title }}</td>
+            <td>{{ problem.difficulty }}</td>
+            <td>{{ problem.author }}</td>
+        </tr>
+    </tbody>
+</table>
+

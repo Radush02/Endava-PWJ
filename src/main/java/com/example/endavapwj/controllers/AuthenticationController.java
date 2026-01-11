@@ -8,6 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
@@ -18,6 +20,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/v2/auth")
 public class AuthenticationController {
   private final AuthenticationService authenticationService;
+  @Value("${security.cookie.secure}")
+  private boolean cookieSecure;
+
+  @Value("${security.cookie.same-site}")
+  private String cookieSameSite;
 
   public AuthenticationController(AuthenticationService authenticationService) {
     this.authenticationService = authenticationService;
@@ -31,9 +38,9 @@ public class AuthenticationController {
         .thenApply(body -> ResponseEntity.status(HttpStatus.CREATED).body(body));
   }
 
-  @PostMapping("/validate")
+  @PostMapping("/validate/{emailHashKey}")
   public CompletableFuture<ResponseEntity<Map<String, String>>> validate(
-      @RequestParam String emailHashKey) {
+      @PathVariable String emailHashKey) {
     return authenticationService
         .validateEmail(emailHashKey)
         .thenApply(body -> ResponseEntity.status(HttpStatus.CREATED).body(body));
@@ -51,18 +58,18 @@ public class AuthenticationController {
               ResponseCookie jwtCookie =
                   ResponseCookie.from("jwt", accessToken)
                       .httpOnly(true)
-                      .secure(false)
+                      .secure(cookieSecure)
                       .path("/")
                       .maxAge(12 * 60 * 60)
-                      .sameSite("Strict")
+                      .sameSite(cookieSameSite)
                       .build();
               ResponseCookie refreshCookie =
                   ResponseCookie.from("refresh", refreshToken)
                       .httpOnly(true)
-                      .secure(false)
+                      .secure(cookieSecure)
                       .path("/")
                       .maxAge(60L * 60L * 24L * 30L)
-                      .sameSite("Strict")
+                      .sameSite(cookieSameSite)
                       .build();
 
               response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
@@ -76,24 +83,29 @@ public class AuthenticationController {
     ResponseCookie jwtCookie =
         ResponseCookie.from("jwt", "")
             .httpOnly(true)
-            .secure(true)
+            .secure(cookieSecure)
             .path("/")
             .maxAge(0)
-            .sameSite("None")
+            .sameSite(cookieSameSite)
             .build();
 
     ResponseCookie refreshCookie =
         ResponseCookie.from("refresh", "")
             .httpOnly(true)
-            .secure(true)
+            .secure(cookieSecure)
             .path("/")
             .maxAge(0)
-            .sameSite("None")
+            .sameSite(cookieSameSite)
             .build();
 
     response.addHeader(HttpHeaders.SET_COOKIE, jwtCookie.toString());
     response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
     return ResponseEntity.ok(Map.of("response", "Logged out successfully"));
+  }
+
+  @GetMapping
+  public CompletableFuture<ResponseEntity<Map<String, String>>> loggedIn(){
+      return authenticationService.loggedIn().thenApply((body)->ResponseEntity.status(HttpStatus.OK).body(body));
   }
 }

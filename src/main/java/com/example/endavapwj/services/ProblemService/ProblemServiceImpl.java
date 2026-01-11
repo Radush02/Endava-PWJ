@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -110,10 +113,35 @@ public class ProblemServiceImpl implements ProblemService {
   }
 
   @Override
-  public CompletableFuture<FullProblemDTO> getById(Long id) {
-    Problem p =
-            this.problemRepository.findById(id).orElseThrow(() -> new NotFoundException("Problem not found"));
+  public CompletableFuture<List<FullProblemDTO>> getAllProblems(int page,int size) {
+    PageRequest pageRequest = PageRequest.of(page, size);
 
+    Page<Problem> problemsPage = problemRepository.findAll(pageRequest);
+
+    List<FullProblemDTO> dtoList = problemsPage
+            .getContent()
+            .stream()
+            .map(this::mapProblemToFullDTO)
+            .toList();
+
+    Page<FullProblemDTO> dtoPage =
+            new PageImpl<>(dtoList, problemsPage.getPageable(), problemsPage.getTotalElements());
+
+    return CompletableFuture.completedFuture(dtoPage.stream().toList());
+  }
+
+
+  @Override
+  public CompletableFuture<FullProblemDTO> getById(Long id) {
+    Problem p = this.problemRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException("Problem not found"));
+
+    FullProblemDTO fp = mapProblemToFullDTO(p);
+
+    return CompletableFuture.completedFuture(fp);
+  }
+
+  private FullProblemDTO mapProblemToFullDTO(Problem p) {
     FullProblemDTO fp = FullProblemDTO.builder()
             .id(p.getId())
             .title(p.getTitle())
@@ -124,12 +152,19 @@ public class ProblemServiceImpl implements ProblemService {
             .author(p.getAdmin().getUsername())
             .build();
 
-    System.out.println(p.getComments().size());
     List<CommentDTO> comments = p.getComments().stream()
-            .map(comm -> new CommentDTO(comm.getUser().getUsername(), comm.getComment(), comm.countUpvotes(),comm.countDownvotes()))
+            .map(comm -> new CommentDTO(
+                    comm.getUser().getUsername(),
+                    comm.getComment(),
+                    comm.countUpvotes(),
+                    comm.countDownvotes()
+            ))
             .toList();
     fp.setComments(comments);
 
-    return CompletableFuture.completedFuture(fp);
+    return fp;
   }
+
 }
+
+

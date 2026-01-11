@@ -9,6 +9,7 @@ import com.example.endavapwj.enums.Role;
 import com.example.endavapwj.exceptions.AccountLockedException;
 import com.example.endavapwj.exceptions.AlreadyExistsException;
 import com.example.endavapwj.exceptions.InvalidFieldException;
+import com.example.endavapwj.exceptions.NotPermittedException;
 import com.example.endavapwj.repositories.EmailValidationRepository;
 import com.example.endavapwj.repositories.UserRepository;
 import com.example.endavapwj.util.JwtUtil;
@@ -18,6 +19,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -111,5 +113,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             .build();
 
     return CompletableFuture.completedFuture(resultDTO);
+  }
+
+  @Override
+  public CompletableFuture<Map<String, String>> loggedIn() {
+    User u = userRepository.findByUsernameIgnoreCase(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(()-> new NotPermittedException("Not logged in."));
+    return CompletableFuture.completedFuture(Map.of("username", u.getUsername()));
   }
 }

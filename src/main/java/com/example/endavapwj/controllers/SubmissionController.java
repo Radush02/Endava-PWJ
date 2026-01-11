@@ -1,6 +1,6 @@
 package com.example.endavapwj.controllers;
 
-import com.example.endavapwj.DTOs.AuthenticationDTO.SubmitCodeDTO;
+import com.example.endavapwj.DTOs.SubmissionDTO.SubmitCodeDTO;
 import com.example.endavapwj.DTOs.SubmissionDTO.SubmissionDTO;
 import com.example.endavapwj.services.SubmissionService.SubmissionService;
 import java.util.Map;

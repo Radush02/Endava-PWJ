@@ -1,0 +1,18 @@
+<h1>{{ problemDetails?.title }}</h1>
+<p>Difficulty: {{ problemDetails?.difficulty }}</p>
+<p>Author: {{ problemDetails?.author }}</p>
+<div>
+  <h2>Description</h2>
+  <p>{{ problemDetails?.description }}</p>
+</div>
+<div>
+  <h2>Your submission</h2>
+  <label for="select-language">Select Language:</label>
+  <select id="select-language" [(ngModel)]="selectedLanguage">
+    <option *ngFor="let lang of availableLanguages" [value]="lang">{{ lang }}</option>
+  </select>
+  <br>
+  <textarea [(ngModel)]="userSubmission" rows="10" cols="50"></textarea>
+  <br>
+  <button (click)="submitSolution()">Submit Code</button>
+</div>

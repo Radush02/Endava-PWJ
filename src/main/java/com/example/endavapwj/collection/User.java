@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 import java.util.Date;
 import java.util.Set;
 import lombok.*;
+import org.springframework.beans.factory.annotation.Value;
 
 @Entity
 @Table(name = "users")
@@ -50,7 +51,9 @@ public class User {
 
   @Column private Date emailVerifiedAt;
 
-  @Column private String image = "https://radush.ro/static/default.jpg";
+  @Column
+  @Value("${security.website.domain}/static/default.jpg")
+  private String image;
 
   @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
   private Set<Problem> problems;

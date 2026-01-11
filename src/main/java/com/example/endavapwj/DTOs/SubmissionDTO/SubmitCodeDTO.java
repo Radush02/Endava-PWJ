@@ -1,4 +1,4 @@
-package com.example.endavapwj.DTOs.AuthenticationDTO;
+package com.example.endavapwj.DTOs.SubmissionDTO;
 
 import com.example.endavapwj.enums.Language;
 import jakarta.validation.constraints.NotNull;

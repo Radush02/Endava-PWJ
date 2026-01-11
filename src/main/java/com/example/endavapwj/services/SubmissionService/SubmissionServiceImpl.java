@@ -1,6 +1,6 @@
 package com.example.endavapwj.services.SubmissionService;
 
-import com.example.endavapwj.DTOs.AuthenticationDTO.SubmitCodeDTO;
+import com.example.endavapwj.DTOs.SubmissionDTO.SubmitCodeDTO;
 import com.example.endavapwj.DTOs.DockerDTO.JudgeRequestMessageDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.ProblemDTO;
 import com.example.endavapwj.DTOs.SubmissionDTO.SubmissionDTO;
