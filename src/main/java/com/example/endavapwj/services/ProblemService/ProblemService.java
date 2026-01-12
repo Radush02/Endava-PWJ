@@ -22,4 +22,6 @@ public interface ProblemService {
   CompletableFuture<List<FullProblemDTO>> getAllProblems(int page, int size);
 
   CompletableFuture<FullProblemDTO> getById(Long id);
+
+  CompletableFuture<Map<String,String>> deleteProblem(Long id);
 }

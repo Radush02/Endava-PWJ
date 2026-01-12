@@ -10,6 +10,7 @@ import com.example.endavapwj.enums.Role;
 import com.example.endavapwj.exceptions.NotFoundException;
 import com.example.endavapwj.exceptions.NotPermittedException;
 import com.example.endavapwj.repositories.ProblemRepository;
+import com.example.endavapwj.repositories.TestCaseRepository;
 import com.example.endavapwj.repositories.UserRepository;
 import com.example.endavapwj.util.JwtUtil;
 import jakarta.transaction.Transactional;
@@ -27,12 +28,14 @@ public class ProblemServiceImpl implements ProblemService {
   private final UserRepository userRepository;
   private final JwtUtil jwtUtil;
   private final ProblemRepository problemRepository;
+  private final TestCaseRepository testCaseRepository;
 
   public ProblemServiceImpl(
-      UserRepository userRepository, JwtUtil jwtUtil, ProblemRepository problemRepository) {
+          UserRepository userRepository, JwtUtil jwtUtil, ProblemRepository problemRepository, TestCaseRepository testCaseRepository) {
     this.userRepository = userRepository;
     this.jwtUtil = jwtUtil;
     this.problemRepository = problemRepository;
+    this.testCaseRepository = testCaseRepository;
   }
 
   @Override
@@ -135,6 +138,16 @@ public class ProblemServiceImpl implements ProblemService {
     FullProblemDTO fp = mapProblemToFullDTO(p);
 
     return CompletableFuture.completedFuture(fp);
+  }
+
+  @Override
+  public CompletableFuture<Map<String, String>> deleteProblem(Long id) {
+    User u = userRepository.findByUsernameIgnoreCase(jwtUtil.extractUsername()).orElseThrow(() -> new NotFoundException("User not found"));
+    if (u.getRole() != Role.Admin)
+      throw new NotPermittedException("You do not have permission to perform this operation");
+    testCaseRepository.deleteAllByProblemId(id);
+    problemRepository.deleteById(id);
+    return CompletableFuture.completedFuture(Map.of("message", "Problem deleted successfully"));
   }
 
   private FullProblemDTO mapProblemToFullDTO(Problem p) {

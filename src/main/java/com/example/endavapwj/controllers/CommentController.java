@@ -16,10 +16,7 @@ import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(
     name = "Comment",
@@ -95,5 +92,10 @@ public class CommentController {
     return this.commentService
         .addVote(vote)
         .thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
+  }
+
+  @DeleteMapping("/{id}")
+  public CompletableFuture<ResponseEntity<Map<String,String>>> deleteComment(@PathVariable long id) {
+      return this.commentService.deleteComment(id).thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
   }
 }

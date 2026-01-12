@@ -10,4 +10,6 @@ public interface CommentService {
   CompletableFuture<Map<String, String>> addComment(AddCommentDTO comment);
 
   CompletableFuture<Map<String, String>> addVote(AddCommentVoteDTO voteDTO);
+
+  CompletableFuture<Map<String,String>> deleteComment(Long id);
 }

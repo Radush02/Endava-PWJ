@@ -5,8 +5,10 @@ import com.example.endavapwj.DTOs.CommentDTO.AddCommentVoteDTO;
 import com.example.endavapwj.collection.Comment;
 import com.example.endavapwj.collection.CommentVote;
 import com.example.endavapwj.collection.User;
+import com.example.endavapwj.enums.Role;
 import com.example.endavapwj.exceptions.AlreadyExistsException;
 import com.example.endavapwj.exceptions.NotFoundException;
+import com.example.endavapwj.exceptions.NotPermittedException;
 import com.example.endavapwj.repositories.CommentRepository;
 import com.example.endavapwj.repositories.CommentVoteRepository;
 import com.example.endavapwj.repositories.ProblemRepository;
@@ -65,5 +67,15 @@ public class CommentServiceImpl implements CommentService {
       // sau sa scot votu? :hmm:
       throw new AlreadyExistsException("You already voted.");
     }
+  }
+
+  @Override
+  public CompletableFuture<Map<String, String>> deleteComment(Long id) {
+    User u = userRepository.findByUsernameIgnoreCase(jwtUtil.extractUsername()).orElseThrow(() -> new NotFoundException("User not found"));
+    if(u.getRole()!= Role.Admin)
+      throw new NotPermittedException("You do not have permission to delete this comment");
+    commentVoteRepository.deleteAllByCommentId(id);
+    commentRepository.deleteById(id);
+    return CompletableFuture.completedFuture(Map.of("message", "Comment deleted."));
   }
 }

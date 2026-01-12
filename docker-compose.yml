@@ -11,10 +11,12 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$$MYSQL_ROOT_PASSWORD"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$MYSQL_ROOT_PASSWORD"]
       interval: 5s
       timeout: 3s
       retries: 30
+    networks:
+      - endava-network
 
   redis:
     image: redis:7.4-alpine
@@ -29,6 +31,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 30
+    networks:
+      - endava-network
 
   rabbitmq:
     image: rabbitmq:3.13-management
@@ -43,6 +47,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
+    networks:
+      - endava-network
 
 #  judge-c:
 #    build:
@@ -90,12 +96,38 @@ services:
       SPRING_RABBITMQ_PORT: "5672"
       SECURITY_ADMIN_EMAIL: ${SECURITY_ADMIN_EMAIL}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      MAILJET_APIKEY_PUBLIC: ${MAILJET_APIKEY_PUBLIC}
+      MAILJET_APIKEY_PRIVATE: ${MAILJET_APIKEY_PRIVATE}
+      SECURITY_WEBSITE_DOMAIN: ${SECURITY_WEBSITE_DOMAIN}
+      MAIL_CONFIRMATION: ${MAIL_CONFIRMATION}
+      SECURITY_COOKIE_SECURE: ${SECURITY_COOKIE_SECURE:true}
+      SECURITY_COOKIE_SAME_SITE: ${SECURITY_COOKIE_SAME_SITE:Lax}
       SPRINGDOC_API_DOCS_PATH: /v2/api-docs
       JUDGE_C_HOST: judge-c
       JUDGE_PY_HOST: judge-py
     restart: unless-stopped
+    networks:
+      - endava-network
+
+client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: endava-pwj-client
+    ports:
+      - "4200:443"
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - endava-network
+
+networks:
+  endava-network:
+    driver: bridge
 
 volumes:
   mysql_data:
   redis_data:
   rabbitmq_data:
+

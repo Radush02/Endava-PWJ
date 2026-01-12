@@ -112,4 +112,9 @@ public class ProblemController {
         .getAllProblems(page, size)
         .thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
   }
+
+  @DeleteMapping
+    public CompletableFuture<ResponseEntity<Map<String,String>>> delete(@PathVariable Long id) {
+      return problemService.deleteProblem(id).thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
+  }
 }
