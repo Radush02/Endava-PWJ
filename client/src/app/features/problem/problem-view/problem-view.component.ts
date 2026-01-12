@@ -6,10 +6,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CreatedSubmissionDTO, SubmissionDTO, SubmitCodeDTO, Verdict } from '../models/submission.request';
 import { SubmissionService } from '../service/submission.service';
+import { CommentComponent } from '../../comment/comment/comment.component';
+import { AddCommentComponent } from '../../comment/add-comment/add-comment.component';
 
 @Component({
   selector: 'app-problem-view',
-  imports: [FormsModule, CommonModule],
+  imports: [FormsModule, CommonModule,CommentComponent,AddCommentComponent],
   templateUrl: './problem-view.component.html',
   styleUrl: './problem-view.component.css'
 })

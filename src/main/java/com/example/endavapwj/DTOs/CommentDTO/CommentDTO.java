@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class CommentDTO {
+  Long id;
   String username;
   String comment;
   Integer upvotes;

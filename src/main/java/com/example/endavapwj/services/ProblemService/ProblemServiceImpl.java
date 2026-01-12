@@ -154,6 +154,7 @@ public class ProblemServiceImpl implements ProblemService {
             .map(
                 comm ->
                     new CommentDTO(
+                        comm.getId(),
                         comm.getUser().getUsername(),
                         comm.getComment(),
                         comm.countUpvotes(),

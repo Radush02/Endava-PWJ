@@ -31,7 +31,7 @@ public class CommentController {
 
   private final CommentService commentService;
 
-  @PostMapping("/")
+  @PostMapping()
   @Operation(
       summary = "Add a comment",
       description =

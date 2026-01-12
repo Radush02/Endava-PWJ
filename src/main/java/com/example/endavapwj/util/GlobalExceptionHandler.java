@@ -1,6 +1,7 @@
 package com.example.endavapwj.util;
 
 import com.example.endavapwj.exceptions.*;
+import com.mailjet.client.errors.MailjetException;
 import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
@@ -28,7 +29,14 @@ public class GlobalExceptionHandler {
     body.put("error", errors);
     return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
   }
-
+  @ExceptionHandler(MailjetException.class)
+  public ResponseEntity<Map<String, Object>> handleMailjetException(MailjetException ex) {
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("timestamp", LocalDateTime.now());
+    body.put("status", HttpStatus.BAD_REQUEST.value());
+    body.put("error", ex.getMessage());
+    return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+  }
   @ExceptionHandler(AlreadyExistsException.class)
   public ResponseEntity<Map<String, Object>> handleAlreadyExistsException(
       AlreadyExistsException ex) {

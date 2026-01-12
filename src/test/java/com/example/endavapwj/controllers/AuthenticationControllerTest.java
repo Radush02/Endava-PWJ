@@ -1,7 +1,6 @@
 package com.example.endavapwj.controllers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.example.endavapwj.DTOs.AuthenticationDTO.RegisterDTO;
@@ -29,89 +28,82 @@ class AuthenticationControllerTest extends BaseControllerTest {
   @Test
   void whenRegisterWithCorrectInfo_thenCreateUser() throws Exception {
     RegisterDTO validDto =
-        RegisterDTO.builder()
-            .username("radush")
-            .password("Password1!")
-            .email("radush@radush.ro")
-            .build();
+            RegisterDTO.builder()
+                    .username("radush")
+                    .password("Password1!")
+                    .email("radush@radush.ro")
+                    .build();
 
     String reqBody = objectMapper.writeValueAsString(validDto);
-
     Map<String, String> serviceResponse =
-        Map.of(
-            "message", "Register successful",
-            "emailToken", "dummyToken");
-
+            Map.of("message", "Register successful. Check your email to validate the address.");
     Mockito.when(authenticationService.registerUser(Mockito.any(RegisterDTO.class)))
-        .thenReturn(CompletableFuture.completedFuture(serviceResponse));
+            .thenReturn(CompletableFuture.completedFuture(serviceResponse));
 
     MvcResult mvcResult =
-        mvc.perform(
-                post("/api/v2/auth/register")
-                    .contentType("application/json")
-                    .characterEncoding(StandardCharsets.UTF_8)
-                    .content(reqBody))
-            .andExpect(request().asyncStarted())
-            .andReturn();
+            mvc.perform(
+                            post("/api/v2/auth/register")
+                                    .contentType("application/json")
+                                    .characterEncoding(StandardCharsets.UTF_8)
+                                    .content(reqBody))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
 
     mvc.perform(asyncDispatch(mvcResult))
-        .andExpect(status().isCreated())
-        .andExpect(jsonPath("$.message").value("Register successful"))
-        .andExpect(jsonPath("$.emailToken").value("dummyToken"));
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.message").value("Register successful. Check your email to validate the address."))
+            .andExpect(jsonPath("$.emailToken").doesNotExist());
 
     Mockito.verify(authenticationService, Mockito.times(1))
-        .registerUser(Mockito.any(RegisterDTO.class));
+            .registerUser(Mockito.any(RegisterDTO.class));
   }
 
   @Test
   void whenRegisterWithNotStrongPassword_thenThrowBadRequest() throws Exception {
     RegisterDTO validDto =
-        RegisterDTO.builder()
-            .username("radush")
-            .password("Password1")
-            .email("radush@radush.ro")
-            .build();
+            RegisterDTO.builder()
+                    .username("radush")
+                    .password("Password1")
+                    .email("radush@radush.ro")
+                    .build();
 
     String reqBody = objectMapper.writeValueAsString(validDto);
 
     mvc.perform(
-            post("/api/v2/auth/register")
-                .contentType("application/json")
-                .characterEncoding(StandardCharsets.UTF_8)
-                .content(reqBody))
-        .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        .andExpect(
-            jsonPath("$.error[0]")
-                .value(
-                    "password: Password must include at least one lowercase, one uppercase, one digit and one special character."))
-        .andReturn();
+                    post("/api/v2/auth/register")
+                            .contentType("application/json")
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .content(reqBody))
+            .andExpect(status().isBadRequest())
+            .andExpect(
+                    jsonPath("$.error[0]")
+                            .value("password: Password must include at least one lowercase, one uppercase, one digit and one special character."));
 
     Mockito.verify(authenticationService, Mockito.times(0))
-        .registerUser(Mockito.any(RegisterDTO.class));
+            .registerUser(Mockito.any(RegisterDTO.class));
   }
 
   @Test
   void whenRegisterWithInvalidEmail_thenThrowBadRequest() throws Exception {
     RegisterDTO validDto =
-        RegisterDTO.builder()
-            .username("radush")
-            .password("Password1!")
-            .email("invalideemail")
-            .build();
+            RegisterDTO.builder()
+                    .username("radush")
+                    .password("Password1!")
+                    .email("invalideemail")
+                    .build();
 
     String reqBody = objectMapper.writeValueAsString(validDto);
 
     mvc.perform(
-            post("/api/v2/auth/register")
-                .contentType("application/json")
-                .characterEncoding(StandardCharsets.UTF_8)
-                .content(reqBody))
-        .andExpect(MockMvcResultMatchers.status().isBadRequest())
-        .andExpect(jsonPath("$.error[0]").value("email: Email is invalid"))
-        .andReturn();
+                    post("/api/v2/auth/register")
+                            .contentType("application/json")
+                            .characterEncoding(StandardCharsets.UTF_8)
+                            .content(reqBody))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error[0]").value("email: Email is invalid"));
 
     Mockito.verify(authenticationService, Mockito.times(0))
-        .registerUser(Mockito.any(RegisterDTO.class));
+            .registerUser(Mockito.any(RegisterDTO.class));
   }
 
   @Test
@@ -153,7 +145,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
 
     MvcResult mvcConfirmResult =
         mvc.perform(
-                post("/api/v2/auth/validate/{emailHashKey}", "dummyToken")
+                get("/api/v2/auth/validate/{emailHashKey}", "dummyToken")
                     .contentType("application/json")
                     .characterEncoding(StandardCharsets.UTF_8))
             .andExpect(request().asyncStarted())
@@ -202,7 +194,7 @@ class AuthenticationControllerTest extends BaseControllerTest {
         .andReturn();
 
     mvc.perform(
-            post("/api/v2/auth/validate/{emailHashKey}", "incorrectToken")
+            get("/api/v2/auth/validate/{emailHashKey}", "incorrectToken")
                 .contentType("application/json")
                 .characterEncoding(StandardCharsets.UTF_8))
         .andExpect(MockMvcResultMatchers.status().isBadRequest())

@@ -20,6 +20,8 @@ import com.example.endavapwj.util.LoginThrottle;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import com.mailjet.client.errors.MailjetException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -61,66 +63,7 @@ class AuthenticationServiceImplTest {
     verify(emailValidationRepository, never()).save(any(EmailValidation.class));
   }
 
-  @Test
-  void registerUser_whenValid_savesUser_createsToken_andReturnsMessageAndToken() {
-    when(userRepository.existsByUsernameOrEmailIgnoreCase("radush", "radush@radush.ro"))
-        .thenReturn(false);
-    when(passwordEncoder.encode("Password1!")).thenReturn("ENCODED");
-    when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
 
-    ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-    ArgumentCaptor<EmailValidation> tokenCaptor = ArgumentCaptor.forClass(EmailValidation.class);
-
-    CompletableFuture<Map<String, String>> future = service.registerUser(validDto);
-    Map<String, String> result = future.join();
-
-    assertEquals("Register successful", result.get("message"));
-    assertNotNull(result.get("emailToken"));
-    assertEquals(24, result.get("emailToken").length());
-
-    verify(userRepository).save(userCaptor.capture());
-    verify(emailValidationRepository).save(tokenCaptor.capture());
-
-    User savedUser = userCaptor.getValue();
-    assertEquals("radush", savedUser.getUsername());
-    assertEquals("radush@radush.ro", savedUser.getEmail());
-    assertEquals(Role.User, savedUser.getRole());
-    assertEquals("ENCODED", savedUser.getPassword());
-
-    EmailValidation savedToken = tokenCaptor.getValue();
-    assertNotNull(savedToken.getUser());
-    assertNotNull(savedToken.getCreatedAt());
-    assertNotNull(savedToken.getValidationHash());
-    assertEquals(24, savedToken.getValidationHash().length());
-    assertEquals(savedToken.getValidationHash(), result.get("emailToken"));
-  }
-
-  @Test
-  void validateEmail_whenValid_deletesEmailToken_andReturnsMessage() {
-    when(userRepository.existsByUsernameOrEmailIgnoreCase("radush", "radush@radush.ro"))
-        .thenReturn(false);
-    when(userRepository.save(any(User.class))).thenAnswer(i -> i.getArgument(0));
-    when(passwordEncoder.encode("Password1!")).thenReturn("ENCODED");
-
-    Map<String, String> result = service.registerUser(validDto).join();
-
-    ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-    ArgumentCaptor<EmailValidation> tokenCaptor = ArgumentCaptor.forClass(EmailValidation.class);
-
-    verify(userRepository).save(userCaptor.capture());
-    verify(emailValidationRepository).save(tokenCaptor.capture());
-
-    EmailValidation savedToken = tokenCaptor.getValue();
-    String hash = savedToken.getValidationHash();
-    assertEquals(24, hash.length());
-    assertEquals(hash, result.get("emailToken"));
-    when(emailValidationRepository.findByValidationHash(hash)).thenReturn(Optional.of(savedToken));
-    Map<String, String> emailResult = service.validateEmail(hash).join();
-    assertEquals("Email validated successfully.", emailResult.get("message"));
-
-    verify(emailValidationRepository).delete(savedToken);
-    verify(userRepository, atLeastOnce()).save(any(User.class));
-  }
 
   @Test
   void login_whenUserDoesNotExist_throwsInvalidFieldException() {

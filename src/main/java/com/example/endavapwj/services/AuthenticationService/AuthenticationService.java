@@ -6,6 +6,7 @@ import com.example.endavapwj.DTOs.AuthenticationDTO.RegisterDTO;
 import com.example.endavapwj.exceptions.AccountLockedException;
 import com.example.endavapwj.exceptions.AlreadyExistsException;
 import com.example.endavapwj.exceptions.InvalidFieldException;
+import com.mailjet.client.errors.MailjetException;
 import jakarta.transaction.Transactional;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -28,7 +29,7 @@ public interface AuthenticationService {
    * @throws AlreadyExistsException if the username or email is already registered
    */
   @Transactional
-  CompletableFuture<Map<String, String>> registerUser(RegisterDTO registerDTO);
+  CompletableFuture<Map<String, String>> registerUser(RegisterDTO registerDTO) throws MailjetException;
 
   /**
    * Confirms a user's email address. Looks up a matching validation token and marks the user email

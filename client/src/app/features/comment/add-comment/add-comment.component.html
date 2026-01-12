@@ -1,0 +1,15 @@
+<form #testCaseForm="ngForm" (ngSubmit)="createTestcase()">
+  <div>
+    <label for="comment">Comment</label>
+    <input
+      id="comment"
+      name="comment"
+      [(ngModel)]="comment"
+      required
+    />
+  </div>
+
+
+  <button type="submit">Add comment</button>
+</form>
+<p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>

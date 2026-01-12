@@ -1,0 +1,16 @@
+<div >
+  <div>
+    <strong>{{ comment.username }}</strong>
+  </div>
+  <p>
+    {{ comment.comment }}
+  </p>
+  <div>
+    <span>Upvotes: {{ comment.upvotes }}</span>
+    <span>Downvotes: {{ comment.downvotes }}</span>
+  </div>
+  <div>
+    <button (click)="addVote(CommentVoteType.UPVOTE)">Upvote</button>
+    <button (click)="addVote(CommentVoteType.DOWNVOTE)">Downvote</button>
+  </div>
+</div>

@@ -8,6 +8,7 @@ import com.example.endavapwj.exceptions.AlreadyExistsException;
 import com.example.endavapwj.exceptions.InvalidFieldException;
 import com.example.endavapwj.exceptions.NotPermittedException;
 import com.example.endavapwj.services.AuthenticationService.AuthenticationService;
+import com.mailjet.client.errors.MailjetException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -71,13 +72,13 @@ public class AuthenticationController {
                     schema = @Schema(implementation = AlreadyExistsException.class)))
       })
   public CompletableFuture<ResponseEntity<Map<String, String>>> register(
-      @Valid @RequestBody RegisterDTO registerDTO) {
+      @Valid @RequestBody RegisterDTO registerDTO) throws MailjetException {
     return authenticationService
         .registerUser(registerDTO)
         .thenApply(body -> ResponseEntity.status(HttpStatus.CREATED).body(body));
   }
 
-  @PostMapping("/validate/{emailHashKey}")
+  @GetMapping("/validate/{emailHashKey}")
   @Operation(
       summary = "Validate email account",
       description =

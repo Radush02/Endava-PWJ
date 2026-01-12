@@ -16,3 +16,23 @@
   <br>
   <button (click)="submitSolution()">Submit Code</button>
 </div>
+
+<div *ngIf="problemDetails">
+  <h2>Comments</h2>
+
+  <ng-container *ngIf="problemDetails.comments?.length; else noComments">
+    <app-comment
+      *ngFor="let c of problemDetails.comments"
+      [comment]="c">
+    </app-comment>
+  </ng-container>
+
+  <ng-template #noComments>
+    <p>No comments yet.</p>
+  </ng-template>
+</div>
+
+<div *ngIf="problemDetails">
+  <h2>Add a Comment</h2>
+  <app-add-comment [problemId]="problemDetails.id"></app-add-comment>
+</div>
