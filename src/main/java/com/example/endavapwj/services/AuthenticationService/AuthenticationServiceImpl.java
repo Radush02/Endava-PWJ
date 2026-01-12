@@ -117,7 +117,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
   @Override
   public CompletableFuture<Map<String, String>> loggedIn() {
-    User u = userRepository.findByUsernameIgnoreCase(SecurityContextHolder.getContext().getAuthentication().getName()).orElseThrow(()-> new NotPermittedException("Not logged in."));
+    User u =
+        userRepository
+            .findByUsernameIgnoreCase(
+                SecurityContextHolder.getContext().getAuthentication().getName())
+            .orElseThrow(() -> new NotPermittedException("Not logged in."));
     return CompletableFuture.completedFuture(Map.of("username", u.getUsername()));
   }
 }

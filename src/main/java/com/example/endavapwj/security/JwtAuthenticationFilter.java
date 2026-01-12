@@ -27,7 +27,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
   @Value("${security.cookie.secure}")
   private boolean cookieSecure;
 
-
   private void clearJwtCookie(HttpServletResponse response) {
     Cookie cookie = new Cookie("jwt", null);
     cookie.setHttpOnly(true);

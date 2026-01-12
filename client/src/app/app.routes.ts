@@ -5,6 +5,8 @@ import { AuthGuard } from './core/auth/auth.guard';
 import { notAuthGuard } from './core/auth/not-auth.guard';
 import { ProblemHomeComponent } from './features/problem/problem-home/problem-home.component';
 import { ProblemViewComponent } from './features/problem/problem-view/problem-view.component';
+import { AdminGuard } from './core/auth/admin.guard';
+import { AdminViewComponent } from './features/admin/admin-view/admin-view.component';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'home', pathMatch: 'full',canMatch: [AuthGuard]},
@@ -12,4 +14,5 @@ export const routes: Routes = [
     { path: 'login',component: LoginComponent,canMatch: [notAuthGuard]},
     {path: 'register', component:RegisterComponent, canMatch: [notAuthGuard]},
     {path:"problem/:id",component:ProblemViewComponent, canMatch: [AuthGuard]},
+    {path:"admin",component:AdminViewComponent, canMatch: [AdminGuard]}
 ];

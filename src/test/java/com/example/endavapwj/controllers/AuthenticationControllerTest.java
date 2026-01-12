@@ -8,27 +8,20 @@ import com.example.endavapwj.DTOs.AuthenticationDTO.RegisterDTO;
 import com.example.endavapwj.exceptions.InvalidFieldException;
 import com.example.endavapwj.repositories.*;
 import com.example.endavapwj.services.AuthenticationService.AuthenticationService;
-import com.example.endavapwj.util.JwtUtil;
-import com.example.endavapwj.util.LoginThrottle;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManagerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @WebMvcTest(AuthenticationController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class AuthenticationControllerTest extends BaseControllerTest{
+class AuthenticationControllerTest extends BaseControllerTest {
 
   @MockitoBean private AuthenticationService authenticationService;
   @MockitoBean private UserRepository userRepository;

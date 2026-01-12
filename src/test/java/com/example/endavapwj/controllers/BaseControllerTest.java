@@ -14,10 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc(addFilters = false)
 public abstract class BaseControllerTest {
 
-    @Autowired protected MockMvc mvc;
-    @Autowired protected ObjectMapper objectMapper;
+  @Autowired protected MockMvc mvc;
+  @Autowired protected ObjectMapper objectMapper;
 
-    @MockitoBean protected JwtUtil jwtUtil;
-    @MockitoBean protected BCryptPasswordEncoder passwordEncoder;
-    @MockitoBean protected LoginThrottle loginThrottle;
+  @MockitoBean protected JwtUtil jwtUtil;
+  @MockitoBean protected BCryptPasswordEncoder passwordEncoder;
+  @MockitoBean protected LoginThrottle loginThrottle;
 }

@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AddCommentVoteDTO {
-    public Long commentId;
-    public CommentVoteType type;
+  public Long commentId;
+  public CommentVoteType type;
 }

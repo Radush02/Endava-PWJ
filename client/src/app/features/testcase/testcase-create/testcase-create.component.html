@@ -1,0 +1,46 @@
+<form #testCaseForm="ngForm" (ngSubmit)="createTestcase()">
+  <div>
+    <label for="problemTitle">Problem Title</label>
+    <input
+      id="problemTitle"
+      name="problemTitle"
+      [(ngModel)]="testcase.problemTitle"
+      required
+    />
+  </div>
+
+  <div>
+    <label for="problemId">Problem ID</label>
+    <input
+      id="problemId"
+      name="problemId"
+      type="number"
+      [(ngModel)]="problemId"
+      required
+    />
+  </div>
+  <div>
+    <label for="input">Input</label>
+    <textarea
+      id="input"
+      name="input"
+      [(ngModel)]="testcase.input"
+      rows="5"
+      cols="30"
+      required
+    ></textarea>
+  </div>
+    <div>
+        <label for="output">Expected Output</label>
+        <textarea
+        id="output"
+        name="output"
+        [(ngModel)]="testcase.output"
+        rows="5"
+        cols="30"
+        required
+        ></textarea>
+  </div>
+  <button type="submit">Create Testcase</button>
+</form>
+<p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>

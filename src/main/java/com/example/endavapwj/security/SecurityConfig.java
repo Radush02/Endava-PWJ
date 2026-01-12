@@ -1,6 +1,7 @@
 package com.example.endavapwj.security;
 
 import jakarta.servlet.DispatcherType;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,15 +22,16 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
   @Autowired private UserDetailsService userDetailsService;
   @Autowired private JwtAuthenticationFilter jwtAuthenticationFilter;
-  @Value("${security.website.domain}") private String websiteDomain;
+
+  @Value("${security.website.domain}")
+  private String websiteDomain;
+
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -64,7 +66,7 @@ public class SecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration corsConfiguration = new CorsConfiguration();
-    corsConfiguration.setAllowedOriginPatterns(List.of("http://localhost:4200",websiteDomain));
+    corsConfiguration.setAllowedOriginPatterns(List.of("http://localhost:4200", websiteDomain));
     corsConfiguration.addAllowedHeader("*");
     corsConfiguration.addAllowedMethod("*");
     corsConfiguration.setAllowCredentials(true);

@@ -1,6 +1,7 @@
 package com.example.endavapwj.services.ProblemService;
 
 import com.example.endavapwj.DTOs.CommentDTO.CommentDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.CreateProblemDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.EditProblemDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.FullProblemDTO;
 import com.example.endavapwj.collection.Problem;
@@ -12,11 +13,9 @@ import com.example.endavapwj.repositories.ProblemRepository;
 import com.example.endavapwj.repositories.UserRepository;
 import com.example.endavapwj.util.JwtUtil;
 import jakarta.transaction.Transactional;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -38,8 +37,7 @@ public class ProblemServiceImpl implements ProblemService {
 
   @Override
   @Transactional
-  public CompletableFuture<Map<String, String>> create(
-      EditProblemDTO.CreateProblemDTO createProblemDTO) {
+  public CompletableFuture<Map<String, String>> create(CreateProblemDTO createProblemDTO) {
     User u =
         this.userRepository
             .findByUsername(jwtUtil.extractUsername())
@@ -71,7 +69,7 @@ public class ProblemServiceImpl implements ProblemService {
       throw new NotPermittedException("You do not have permission to perform this operation");
     Problem problem =
         this.problemRepository
-            .findByTitle(editProblemDTO.getTitle())
+            .findByTitleIgnoreCase(editProblemDTO.getTitle())
             .orElseThrow(() -> new NotFoundException("Problem not found"));
     problem.setDescription(
         editProblemDTO.getDescription() != null
@@ -105,7 +103,7 @@ public class ProblemServiceImpl implements ProblemService {
       throw new NotPermittedException("You do not have permission to perform this operation");
     Problem problem =
         this.problemRepository
-            .findByTitle(title)
+            .findByTitleIgnoreCase(title)
             .orElseThrow(() -> new NotFoundException("Problem not found"));
     problemRepository.delete(problem);
 
@@ -113,27 +111,25 @@ public class ProblemServiceImpl implements ProblemService {
   }
 
   @Override
-  public CompletableFuture<List<FullProblemDTO>> getAllProblems(int page,int size) {
+  public CompletableFuture<List<FullProblemDTO>> getAllProblems(int page, int size) {
     PageRequest pageRequest = PageRequest.of(page, size);
 
     Page<Problem> problemsPage = problemRepository.findAll(pageRequest);
 
-    List<FullProblemDTO> dtoList = problemsPage
-            .getContent()
-            .stream()
-            .map(this::mapProblemToFullDTO)
-            .toList();
+    List<FullProblemDTO> dtoList =
+        problemsPage.getContent().stream().map(this::mapProblemToFullDTO).toList();
 
     Page<FullProblemDTO> dtoPage =
-            new PageImpl<>(dtoList, problemsPage.getPageable(), problemsPage.getTotalElements());
+        new PageImpl<>(dtoList, problemsPage.getPageable(), problemsPage.getTotalElements());
 
     return CompletableFuture.completedFuture(dtoPage.stream().toList());
   }
 
-
   @Override
   public CompletableFuture<FullProblemDTO> getById(Long id) {
-    Problem p = this.problemRepository.findById(id)
+    Problem p =
+        this.problemRepository
+            .findById(id)
             .orElseThrow(() -> new NotFoundException("Problem not found"));
 
     FullProblemDTO fp = mapProblemToFullDTO(p);
@@ -142,7 +138,8 @@ public class ProblemServiceImpl implements ProblemService {
   }
 
   private FullProblemDTO mapProblemToFullDTO(Problem p) {
-    FullProblemDTO fp = FullProblemDTO.builder()
+    FullProblemDTO fp =
+        FullProblemDTO.builder()
             .id(p.getId())
             .title(p.getTitle())
             .description(p.getDescription())
@@ -152,19 +149,18 @@ public class ProblemServiceImpl implements ProblemService {
             .author(p.getAdmin().getUsername())
             .build();
 
-    List<CommentDTO> comments = p.getComments().stream()
-            .map(comm -> new CommentDTO(
-                    comm.getUser().getUsername(),
-                    comm.getComment(),
-                    comm.countUpvotes(),
-                    comm.countDownvotes()
-            ))
+    List<CommentDTO> comments =
+        p.getComments().stream()
+            .map(
+                comm ->
+                    new CommentDTO(
+                        comm.getUser().getUsername(),
+                        comm.getComment(),
+                        comm.countUpvotes(),
+                        comm.countDownvotes()))
             .toList();
     fp.setComments(comments);
 
     return fp;
   }
-
 }
-
-

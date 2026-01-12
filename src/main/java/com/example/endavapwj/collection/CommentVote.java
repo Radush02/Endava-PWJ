@@ -30,5 +30,4 @@ public class CommentVote {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false, length = 10)
   private CommentVoteType type;
-
 }
