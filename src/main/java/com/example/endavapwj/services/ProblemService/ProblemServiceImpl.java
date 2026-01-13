@@ -3,6 +3,7 @@ package com.example.endavapwj.services.ProblemService;
 import com.example.endavapwj.DTOs.CommentDTO.CommentDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.CreateProblemDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.EditProblemDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.FilterDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.FullProblemDTO;
 import com.example.endavapwj.collection.Problem;
 import com.example.endavapwj.collection.User;
@@ -17,6 +18,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -148,6 +150,22 @@ public class ProblemServiceImpl implements ProblemService {
     testCaseRepository.deleteAllByProblemId(id);
     problemRepository.deleteById(id);
     return CompletableFuture.completedFuture(Map.of("message", "Problem deleted successfully"));
+  }
+
+  @Override
+  public CompletableFuture<List<FullProblemDTO>> findProblemByDifficultyAndTitle(FilterDTO filterDTO){
+    List<Problem> p = problemRepository.findByDifficultyAndTitle(filterDTO.getDifficulty(), filterDTO.getTitle());
+    List<FullProblemDTO> dtos = p.stream().map((pb)->
+            FullProblemDTO.builder()
+                    .difficulty(filterDTO.getDifficulty())
+                    .title(pb.getTitle())
+                    .author(pb.getAdmin().getUsername())
+                    .id(pb.getId())
+                    .memoryLimit(pb.getMemoryLimit())
+                    .timeLimit(pb.getTimeLimit())
+                    .build()
+    ).toList();
+    return CompletableFuture.completedFuture(dtos);
   }
 
   private FullProblemDTO mapProblemToFullDTO(Problem p) {

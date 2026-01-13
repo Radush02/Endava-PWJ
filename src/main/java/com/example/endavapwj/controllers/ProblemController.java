@@ -1,6 +1,7 @@
 package com.example.endavapwj.controllers;
 
 import com.example.endavapwj.DTOs.ProblemDTO.CreateProblemDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.FilterDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.FullProblemDTO;
 import com.example.endavapwj.exceptions.NotFoundException;
 import com.example.endavapwj.exceptions.NotPermittedException;
@@ -116,5 +117,12 @@ public class ProblemController {
   @DeleteMapping
     public CompletableFuture<ResponseEntity<Map<String,String>>> delete(@PathVariable Long id) {
       return problemService.deleteProblem(id).thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
+  }
+
+  @GetMapping("/filter")
+    public CompletableFuture<ResponseEntity<List<FullProblemDTO>>> filter(@RequestBody FilterDTO filterDTO) {
+      return problemService.findProblemByDifficultyAndTitle(filterDTO)
+              .thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
+
   }
 }

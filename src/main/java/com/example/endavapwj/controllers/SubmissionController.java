@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.springframework.http.HttpStatus;
@@ -83,4 +85,11 @@ public class SubmissionController {
         .getSubmission(id)
         .thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
   }
+
+  @GetMapping("/best/{problemId}")
+    public CompletableFuture<ResponseEntity<List<SubmissionDTO>>> getBestSubmission(@PathVariable Long problemId) {
+      return submissionService.getBestSubmissions(problemId)
+              .thenApply(body->ResponseEntity.status(HttpStatus.OK).body(body));
+  }
+
 }

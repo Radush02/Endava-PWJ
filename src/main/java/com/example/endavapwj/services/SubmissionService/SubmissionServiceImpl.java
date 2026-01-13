@@ -15,8 +15,10 @@ import com.example.endavapwj.repositories.UserRepository;
 import com.example.endavapwj.util.JudgeQueueConfig;
 import com.example.endavapwj.util.JwtUtil;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -111,5 +113,21 @@ public class SubmissionServiceImpl implements SubmissionService {
             .build();
 
     return submissionRepository.save(s);
+  }
+  @Override
+  public CompletableFuture<List<SubmissionDTO>> getBestSubmissions(Long problemId) {
+    List <Submission> s = this.submissionRepository.findBestSubmissionsByProblem(problemId);
+    List <SubmissionDTO> dtos = s.stream()
+            .map((d)->
+                    SubmissionDTO.builder()
+                            .submissionId(d.getId())
+                            .verdict(d.getVerdict())
+                            .language(d.getLanguage())
+                            .output(d.getOutput())
+                            .expectedOutput(d.getExpectedOutput())
+                            .createdAt(d.getCreatedAt())
+                            .finishedAt(d.getFinishedAt())
+                            .build()).toList();
+    return CompletableFuture.completedFuture(dtos);
   }
 }

@@ -3,6 +3,7 @@ package com.example.endavapwj.controllers;
 import com.example.endavapwj.DTOs.UserDTO.OtherUserDTO;
 import com.example.endavapwj.DTOs.UserDTO.UpdateUserDTO;
 import com.example.endavapwj.DTOs.UserDTO.UserDTO;
+import com.example.endavapwj.DTOs.UserDTO.UserTopDTO;
 import com.example.endavapwj.exceptions.InvalidFieldException;
 import com.example.endavapwj.exceptions.NotPermittedException;
 import com.example.endavapwj.services.UserService.UserService;
@@ -11,6 +12,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
@@ -124,5 +127,12 @@ public class UserController {
     return userService
         .info(username)
         .thenApply((body) -> ResponseEntity.status(HttpStatus.OK).body(body));
+  }
+
+  @GetMapping("/leaderboard")
+  public CompletableFuture<ResponseEntity<List<UserTopDTO>>> getLeaderboard(){
+      return userService
+              .getLeaderboard()
+              .thenApply((body) -> ResponseEntity.status(HttpStatus.OK).body(body));
   }
 }

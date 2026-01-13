@@ -2,7 +2,9 @@ package com.example.endavapwj.services.ProblemService;
 
 import com.example.endavapwj.DTOs.ProblemDTO.CreateProblemDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.EditProblemDTO;
+import com.example.endavapwj.DTOs.ProblemDTO.FilterDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.FullProblemDTO;
+import com.example.endavapwj.enums.Difficulty;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
@@ -24,4 +26,6 @@ public interface ProblemService {
   CompletableFuture<FullProblemDTO> getById(Long id);
 
   CompletableFuture<Map<String,String>> deleteProblem(Long id);
+
+  CompletableFuture<List<FullProblemDTO>> findProblemByDifficultyAndTitle(FilterDTO filterDTO);
 }

@@ -3,6 +3,7 @@ package com.example.endavapwj.services.UserService;
 import com.example.endavapwj.DTOs.UserDTO.OtherUserDTO;
 import com.example.endavapwj.DTOs.UserDTO.UpdateUserDTO;
 import com.example.endavapwj.DTOs.UserDTO.UserDTO;
+import com.example.endavapwj.DTOs.UserDTO.UserTopDTO;
 import com.example.endavapwj.collection.User;
 import com.example.endavapwj.enums.Role;
 import com.example.endavapwj.exceptions.InvalidFieldException;
@@ -13,6 +14,7 @@ import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import lombok.AllArgsConstructor;
@@ -100,5 +102,9 @@ public class UserServiceImpl implements UserService {
             .orElseThrow(() -> new NotFoundException("Doesn't exist yet."));
     u.setRole(Role.Admin);
     userRepository.save(u);
+  }
+
+  public CompletableFuture<List<UserTopDTO>> getLeaderboard(){
+    return CompletableFuture.completedFuture(this.userRepository.getAdvancedLeaderboard());
   }
 }
