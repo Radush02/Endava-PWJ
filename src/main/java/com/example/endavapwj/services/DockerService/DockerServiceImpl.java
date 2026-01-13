@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -52,9 +53,17 @@ public class DockerServiceImpl implements DockerService {
 
     ContainerConfigDTO containerConfig = buildDockerRunConfig(submission.getLanguage());
 
-    Path workDir = Files.createTempDirectory("submission-" + msg.getSubmissionId());
+    Path baseDir = Paths.get("/judge-workdir");
+    Files.createDirectories(baseDir);
+
+    Path workDir = Files.createTempDirectory(
+            baseDir,
+            "submission-" + msg.getSubmissionId() + "-"
+    );
+
     Path sourceFile = workDir.resolve(containerConfig.getSourceFileName());
     Files.writeString(sourceFile, submission.getSource());
+
     Path inputFile = workDir.resolve(containerConfig.getInputFileName());
     String path = workDir.toAbsolutePath().toString();
     String image = containerConfig.getImage();
