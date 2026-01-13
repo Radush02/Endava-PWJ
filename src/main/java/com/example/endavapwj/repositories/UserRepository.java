@@ -23,15 +23,19 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
   Optional<User> findByEmailIgnoreCase(String email);
 
-  @Query("SELECT new com.example.endavapwj.DTOs.UserDTO.UserTopDTO(" +
-          "s.author.username, " +
-          "COUNT(DISTINCT s.problem.id), " +
-          "SUM(CASE WHEN s.problem.difficulty = 'EASY' THEN 1 ELSE 0 END), " +
-          "SUM(CASE WHEN s.problem.difficulty = 'MEDIUM' THEN 1 ELSE 0 END), " +
-          "SUM(CASE WHEN s.problem.difficulty = 'HARD' THEN 1 ELSE 0 END)) " +
-          "FROM Submission s " +
-          "WHERE s.verdict = 'ACCEPTED' " +
-          "GROUP BY s.author.username " +
-          "ORDER BY COUNT(DISTINCT s.problem.id) DESC")
+  @Query("""
+    SELECT new com.example.endavapwj.DTOs.UserDTO.UserTopDTO(
+        s.author.username,
+        COUNT(DISTINCT s.problem.id),
+        SUM(CASE WHEN s.problem.difficulty = com.example.endavapwj.enums.Difficulty.EASY THEN 1 ELSE 0 END),
+        SUM(CASE WHEN s.problem.difficulty = com.example.endavapwj.enums.Difficulty.MEDIUM THEN 1 ELSE 0 END),
+        SUM(CASE WHEN s.problem.difficulty = com.example.endavapwj.enums.Difficulty.HARD THEN 1 ELSE 0 END)
+    )
+    FROM Submission s
+    WHERE s.verdict = com.example.endavapwj.enums.Verdict.AC
+    GROUP BY s.author.username
+    ORDER BY COUNT(DISTINCT s.problem.id) DESC
+    """)
   List<UserTopDTO> getAdvancedLeaderboard();
+
 }

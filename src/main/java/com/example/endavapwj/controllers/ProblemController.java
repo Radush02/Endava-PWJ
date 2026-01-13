@@ -3,6 +3,7 @@ package com.example.endavapwj.controllers;
 import com.example.endavapwj.DTOs.ProblemDTO.CreateProblemDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.FilterDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.FullProblemDTO;
+import com.example.endavapwj.enums.Difficulty;
 import com.example.endavapwj.exceptions.NotFoundException;
 import com.example.endavapwj.exceptions.NotPermittedException;
 import com.example.endavapwj.services.ProblemService.ProblemService;
@@ -120,8 +121,8 @@ public class ProblemController {
   }
 
   @GetMapping("/filter")
-    public CompletableFuture<ResponseEntity<List<FullProblemDTO>>> filter(@RequestBody FilterDTO filterDTO) {
-      return problemService.findProblemByDifficultyAndTitle(filterDTO)
+    public CompletableFuture<ResponseEntity<List<FullProblemDTO>>> filter(@RequestParam Difficulty difficulty, @RequestParam String title) {
+      return problemService.findProblemByDifficultyAndTitle(new FilterDTO(difficulty, title))
               .thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
 
   }

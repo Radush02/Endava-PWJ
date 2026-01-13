@@ -22,7 +22,7 @@ public interface SubmissionRepository extends JpaRepository<Submission, String> 
 
     @Query("SELECT s " +
             "FROM Submission s " +
-            "WHERE s.problem.id = :problemId AND s.verdict = 'ACCEPTED' " +
+            "WHERE s.problem.id = :problemId AND s.verdict = com.example.endavapwj.enums.Verdict.AC " +
             "ORDER BY s.finishedAt - s.createdAt ASC")
     List<Submission> findBestSubmissionsByProblem(Long problemId);
 
