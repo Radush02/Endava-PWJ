@@ -5,13 +5,13 @@ services:
     environment:
       MYSQL_DATABASE: ${ENDAVA_DB}
       # MYSQL_USER: ${ENDAVA_USER}
-      MYSQL_ROOT_PASSWORD: ${ROOT_PASS}
+      MYSQL_ROOT_PASSWORD: ${ENDAVA_PASS}
     ports:
       - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p$MYSQL_ROOT_PASSWORD"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$MYSQL_ROOT_PASSWORD"]
       interval: 5s
       timeout: 3s
       retries: 30
@@ -37,6 +37,7 @@ services:
   rabbitmq:
     image: rabbitmq:3.13-management
     container_name: endava-rabbitmq
+    command: rabbitmq-server --rabbit vm_memory_high_watermark_paging_ratio 0.99 --rabbit vm_memory_high_watermark_relative 0.4
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -100,8 +101,12 @@ services:
       MAILJET_APIKEY_PRIVATE: ${MAILJET_APIKEY_PRIVATE}
       SECURITY_WEBSITE_DOMAIN: ${SECURITY_WEBSITE_DOMAIN}
       MAIL_CONFIRMATION: ${MAIL_CONFIRMATION}
-      SECURITY_COOKIE_SECURE: ${SECURITY_COOKIE_SECURE:true}
-      SECURITY_COOKIE_SAME_SITE: ${SECURITY_COOKIE_SAME_SITE:Lax}
+      SECURITY_COOKIE_SECURE: ${SECURITY_COOKIE_SECURE:-true}
+      SECURITY_COOKIE_SAME_SITE: ${SECURITY_COOKIE_SAME_SITE:-Lax}
+      SECURITY_LOGIN_MAX_ATTEMPTS: ${SECURITY_LOGIN_MAX_ATTEMPTS:-3}
+      SECURITY_LOGIN_FAILURE_WINDOW: ${SECURITY_LOGIN_FAILURE_WINDOW:-PT15M}
+      SECURITY_LOGIN_LOCK_DURATION: ${SECURITY_LOGIN_LOCK_DURATION:-PT15M}
+
       SPRINGDOC_API_DOCS_PATH: /v2/api-docs
       JUDGE_C_HOST: judge-c
       JUDGE_PY_HOST: judge-py
@@ -109,13 +114,13 @@ services:
     networks:
       - endava-network
 
-client:
+  client:
     build:
       context: ./client
       dockerfile: Dockerfile
     container_name: endava-pwj-client
     ports:
-      - "4200:443"
+      - "443:443"
       - "80:80"
     depends_on:
       - app
