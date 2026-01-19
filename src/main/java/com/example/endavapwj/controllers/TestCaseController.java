@@ -11,6 +11,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -60,7 +62,7 @@ public class TestCaseController {
       })
   @PostMapping("/create")
   public CompletableFuture<ResponseEntity<Map<String, String>>> createTestCase(
-      @RequestBody CreateTestCaseDTO createTestCaseDTO) {
+      @RequestBody CreateTestCaseDTO createTestCaseDTO) throws IOException,InterruptedException {
     return testCaseService
         .addTestCase(createTestCaseDTO)
         .thenApply(body -> ResponseEntity.status(HttpStatus.CREATED).body(body));
