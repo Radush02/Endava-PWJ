@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://api.radush.ro/api/v2'
+    apiUrl: '__API_URL__'
 };

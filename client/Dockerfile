@@ -3,7 +3,10 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+
+ARG API_URL
+RUN npm run build && \
+    find dist/client/browser -type f -name "*.js" -exec sed -i "s|__API_URL__|${API_URL}|g" {} +
 
 FROM nginx:alpine
 COPY --from=build /app/dist/client/browser /usr/share/nginx/html

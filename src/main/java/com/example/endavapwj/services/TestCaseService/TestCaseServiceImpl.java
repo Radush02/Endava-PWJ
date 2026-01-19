@@ -11,8 +11,11 @@ import com.example.endavapwj.exceptions.NotPermittedException;
 import com.example.endavapwj.repositories.ProblemRepository;
 import com.example.endavapwj.repositories.TestCaseRepository;
 import com.example.endavapwj.repositories.UserRepository;
+import com.example.endavapwj.services.DockerService.DockerService;
 import com.example.endavapwj.util.JwtUtil;
 import jakarta.transaction.Transactional;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -26,26 +29,27 @@ public class TestCaseServiceImpl implements TestCaseService {
   private final UserRepository userRepository;
   private final ProblemRepository problemRepository;
   private final JwtUtil jwtUtil;
+  private final DockerService dockerService;
 
   public TestCaseServiceImpl(
-      TestCaseRepository testCaseRepository,
-      UserRepository userRepository,
-      ProblemRepository problemRepository,
-      JwtUtil jwtUtil) {
+          TestCaseRepository testCaseRepository,
+          UserRepository userRepository,
+          ProblemRepository problemRepository,
+          JwtUtil jwtUtil, DockerService dockerService) {
     this.testCaseRepository = testCaseRepository;
     this.userRepository = userRepository;
     this.problemRepository = problemRepository;
     this.jwtUtil = jwtUtil;
+      this.dockerService = dockerService;
   }
 
   @Transactional
   @Override
-  public CompletableFuture<Map<String, String>> addTestCase(CreateTestCaseDTO createTestCaseDTO) {
+  public CompletableFuture<Map<String, String>> addTestCase(CreateTestCaseDTO createTestCaseDTO) throws IOException, InterruptedException {
     User u =
         userRepository
             .findByUsername(jwtUtil.extractUsername())
             .orElseThrow(() -> new NotFoundException("User not found"));
-    // System.out.println(createTestCaseDTO.getProblemTitle());
     Problem p =
         problemRepository
             .findByTitleIgnoreCase(createTestCaseDTO.getProblemTitle())
@@ -62,9 +66,10 @@ public class TestCaseServiceImpl implements TestCaseService {
     TestCase tc =
         TestCase.builder()
             .input(createTestCaseDTO.getInput())
-            .output(createTestCaseDTO.getOutput())
             .problem(p)
+            .output(dockerService.getTestCaseOutput(createTestCaseDTO))
             .build();
+
     testCaseRepository.save(tc);
 
     return CompletableFuture.completedFuture(Map.of("message", "Test case included."));

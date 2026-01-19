@@ -4,13 +4,15 @@ import com.example.endavapwj.DTOs.TestCaseDTO.CreateTestCaseDTO;
 import com.example.endavapwj.DTOs.TestCaseDTO.TestCaseDTO;
 import com.example.endavapwj.DTOs.TestCaseDTO.TestCaseIdDTO;
 import jakarta.transaction.Transactional;
+
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public interface TestCaseService {
   @Transactional
-  CompletableFuture<Map<String, String>> addTestCase(CreateTestCaseDTO createTestCaseDTO);
+  CompletableFuture<Map<String, String>> addTestCase(CreateTestCaseDTO createTestCaseDTO) throws IOException, InterruptedException;
 
   CompletableFuture<List<TestCaseDTO>> getTestCases(Long problemId);
 

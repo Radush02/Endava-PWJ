@@ -121,7 +121,7 @@ public class ProblemController {
   }
 
   @GetMapping("/filter")
-    public CompletableFuture<ResponseEntity<List<FullProblemDTO>>> filter(@RequestParam Difficulty difficulty, @RequestParam String title) {
+    public CompletableFuture<ResponseEntity<List<FullProblemDTO>>> filter(@RequestParam Difficulty difficulty, @RequestParam(required=false) String title) {
       return problemService.findProblemByDifficultyAndTitle(new FilterDTO(difficulty, title))
               .thenApply(body -> ResponseEntity.status(HttpStatus.OK).body(body));
 

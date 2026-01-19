@@ -1,6 +1,7 @@
 package com.example.endavapwj.DTOs.ProblemDTO;
 
 import com.example.endavapwj.enums.Difficulty;
+import jakarta.persistence.Lob;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -22,4 +23,7 @@ public class CreateProblemDTO {
   @NotNull @Positive private Integer memoryLimit;
 
   @NotNull @Positive private Integer timeLimit;
+
+  @NotNull @Lob
+  private String solution;
 }

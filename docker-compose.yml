@@ -121,6 +121,8 @@ services:
     build:
       context: ./client
       dockerfile: Dockerfile
+      args:
+        API_URL: ${SECURITY_WEBSITE_API_DOMAIN}
     container_name: endava-pwj-client
     ports:
       - "443:443"

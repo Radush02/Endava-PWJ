@@ -43,7 +43,8 @@ public class User {
           "Password must include at least one lowercase, one uppercase, one digit and one special character.")
   private String password;
 
-  @Column() private String fullName;
+  @Column
+  private String fullName;
 
   @Column(nullable = false)
   @Enumerated(EnumType.STRING)

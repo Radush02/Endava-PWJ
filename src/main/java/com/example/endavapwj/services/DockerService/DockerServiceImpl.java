@@ -4,12 +4,15 @@ import com.example.endavapwj.DTOs.DockerDTO.ContainerConfigDTO;
 import com.example.endavapwj.DTOs.DockerDTO.JudgeRequestMessageDTO;
 import com.example.endavapwj.DTOs.ProblemDTO.ProblemDTO;
 import com.example.endavapwj.DTOs.SubmissionDTO.SubmissionDTO;
+import com.example.endavapwj.DTOs.TestCaseDTO.CreateTestCaseDTO;
 import com.example.endavapwj.collection.Problem;
 import com.example.endavapwj.collection.Submission;
 import com.example.endavapwj.collection.TestCase;
 import com.example.endavapwj.enums.Language;
 import com.example.endavapwj.enums.Verdict;
 import com.example.endavapwj.exceptions.NotFoundException;
+import com.example.endavapwj.exceptions.NotPermittedException;
+import com.example.endavapwj.repositories.ProblemRepository;
 import com.example.endavapwj.repositories.SubmissionRepository;
 import com.example.endavapwj.repositories.TestCaseRepository;
 import com.github.dockerjava.api.DockerClient;
@@ -38,6 +41,7 @@ public class DockerServiceImpl implements DockerService {
   private final TestCaseRepository testCaseRepository;
   private final DockerClient dockerClient;
   private final SubmissionRepository submissionRepository;
+  private final ProblemRepository problemRepository;
 
   @Override
   public SubmissionDTO executeSubmission(JudgeRequestMessageDTO msg)
@@ -212,6 +216,147 @@ public class DockerServiceImpl implements DockerService {
     submissionRepository.save(submission);
     return returnSubmission(submission);
   }
+
+  @Override
+  public String getTestCaseOutput(CreateTestCaseDTO testCaseDTO) throws IOException, InterruptedException {
+
+    ContainerConfigDTO containerConfig = buildDockerRunConfig(testCaseDTO.getLanguage());
+    String image = containerConfig.getImage();
+    String containerSource = containerConfig.getContainerSourceArg();
+    String containerInput = containerConfig.getContainerInputArg();
+
+    Path baseDir = Paths.get("/judge-workdir");
+    Files.createDirectories(baseDir);
+
+    Path workDir = Files.createTempDirectory(
+            baseDir,
+            "testcase-gen-" + testCaseDTO.getProblemId() + "-"
+    );
+
+    String path = workDir.toAbsolutePath().toString();
+
+    Problem p = problemRepository
+            .findByTitleIgnoreCase(testCaseDTO.getProblemTitle())
+            .orElseGet(() -> problemRepository.findById(testCaseDTO.getProblemId())
+                    .orElseThrow(() -> new NotFoundException("Problem not found")));
+
+
+    Path sourceFile = workDir.resolve(containerConfig.getSourceFileName());
+    Files.writeString(sourceFile, p.getSolution());
+
+
+    Path inputFile = workDir.resolve(containerConfig.getInputFileName());
+    Files.writeString(inputFile, testCaseDTO.getInput(), StandardCharsets.UTF_8);
+
+    HostConfig hostConfig = HostConfig.newHostConfig()
+            .withBinds(new Bind(path, new Volume("/work")))
+            .withMemory((p.getMemoryLimit() * 1024L))
+            .withMemorySwap((p.getMemoryLimit() * 1024L))
+            .withCpuQuota(50000L)
+            .withNetworkMode("none");
+
+    CreateContainerResponse compileContainer = dockerClient
+            .createContainerCmd(image)
+            .withHostConfig(hostConfig)
+            .withEntrypoint("/compile.sh")
+            .withCmd(containerSource, p.getMemoryLimit().toString())
+            .exec();
+
+    String compileContainerId = compileContainer.getId();
+    ByteArrayOutputStream compileOutputStream = new ByteArrayOutputStream();
+
+    try (ResultCallback.Adapter<Frame> callback = dockerClient
+            .attachContainerCmd(compileContainerId)
+            .withStdOut(true)
+            .withStdErr(true)
+            .withFollowStream(true)
+            .exec(new ResultCallback.Adapter<>() {
+              @Override
+              public void onNext(Frame frame) {
+                try {
+                  compileOutputStream.write(frame.getPayload());
+                } catch (IOException e) {
+                  e.printStackTrace();
+                }
+              }
+            })) {
+
+      dockerClient.startContainerCmd(compileContainerId).exec();
+
+      int compileExitCode = dockerClient
+              .waitContainerCmd(compileContainerId)
+              .exec(new WaitContainerResultCallback())
+              .awaitStatusCode();
+
+      callback.awaitCompletion();
+      String compileOutput = compileOutputStream.toString(StandardCharsets.UTF_8);
+
+      if (compileExitCode != 0 || compileOutput.startsWith("COMPILE_ERROR")) {
+        throw new NotPermittedException("Compilation error\n" + compileOutput);
+      }
+
+    } finally {
+      try {
+        dockerClient.removeContainerCmd(compileContainerId).withForce(true).exec();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+
+    HostConfig runHostConfig = HostConfig.newHostConfig()
+            .withBinds(new Bind(path, new Volume("/work")))
+            .withMemory((p.getMemoryLimit() * 1024L))
+            .withMemorySwap((p.getMemoryLimit() * 1024L))
+            .withCpuQuota(50000L)
+            .withNetworkMode("none");
+
+    CreateContainerResponse container = dockerClient
+            .createContainerCmd(image)
+            .withHostConfig(runHostConfig)
+            .withCmd(containerSource, containerInput, p.getTimeLimit().toString(), p.getMemoryLimit().toString())
+            .exec();
+
+    String containerId = container.getId();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    try (ResultCallback.Adapter<Frame> logCallback = dockerClient
+            .attachContainerCmd(containerId)
+            .withStdOut(true)
+            .withStdErr(true)
+            .withFollowStream(true)
+            .exec(new ResultCallback.Adapter<>() {
+              @Override
+              public void onNext(Frame frame) {
+                try {
+                  outputStream.write(frame.getPayload());
+                } catch (IOException e) {
+                  e.printStackTrace();
+                }
+              }
+            })) {
+
+      dockerClient.startContainerCmd(containerId).exec();
+
+      int exitCode = dockerClient
+              .waitContainerCmd(containerId)
+              .exec(new WaitContainerResultCallback())
+              .awaitStatusCode();
+
+      logCallback.awaitCompletion();
+      String output = outputStream.toString(StandardCharsets.UTF_8);
+      if (exitCode != 0) {
+        throw new NotPermittedException("Compilation error\n" + output);
+      }
+      return output;
+    } finally {
+      try {
+        dockerClient.removeContainerCmd(containerId).withForce(true).exec();
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
 
   public SubmissionDTO returnSubmission(Submission submission) {
 

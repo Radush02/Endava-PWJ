@@ -121,6 +121,7 @@ public class SubmissionServiceImpl implements SubmissionService {
             .map((d)->
                     SubmissionDTO.builder()
                             .submissionId(d.getId())
+                            .username(d.getAuthor().getUsername())
                             .verdict(d.getVerdict())
                             .language(d.getLanguage())
                             .output(d.getOutput())

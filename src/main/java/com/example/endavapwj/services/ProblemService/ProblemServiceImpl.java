@@ -57,6 +57,7 @@ public class ProblemServiceImpl implements ProblemService {
             .timeLimit(createProblemDTO.getTimeLimit())
             .memoryLimit(createProblemDTO.getMemoryLimit())
             .admin(u)
+            .solution(createProblemDTO.getSolution())
             .build();
 
     problemRepository.save(problem);
